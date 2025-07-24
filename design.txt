@@ -20,9 +20,9 @@ No memory controller yet
 [23-16] OPC opcode
 [15-12] CC jump/branch condition code (0 = RA, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE)
 [15-12] TGT target general purpose register (16x GP)
-[15-12] TGT target special register (0 = FL, 1 = LR, 2 = IR, 3 = SSP, f = PC)
+[15-12] TGT target special register (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
 [11-8]  SRC source general purpose register (16x GP)
-[11-8]  SRC source special register (0 = FL, 1 = LR, 2 = IR, 3 = SSP, f = PC)
+[11-8]  SRC source special register (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
 [11-0]  IMM immediate value (12 bit) (goes to upper 12 bits of IR with the LUI instruction, lower 12 bits for all other instructions)
 [7-0]   IMMsr immediate value (8 bit) (lower 8 bits for SRJCC instruction)
 unused for the instruction:
@@ -81,13 +81,18 @@ STi #imm, (Rt) (store full immediate to data memory at address in Rt)
 STis #imm, (Rt) (store signed sign-extended 12 bit immediate to data memory at address in Rt)
 SRMOV PC, LR (store pc in link register)
 SRJCC LR+#imm (jump condition code to link register with immediate, only lower 8 bits of immediate are used) (jump if condition is met)
+SRADDis #imm, SSP (add sign-extended 12 bit immediate to shadow stack pointer)
+SRSUBis #imm, SSP (subtract sign-extended 12 bit immediate from shadow stack pointer)
+SRST LR, (SSP) (store link register to shadow stack pointer address)
+SRLD (SSP), St (load special temp from shadow stack pointer address)
+SRCMP St, LR (compare special temp with link register)
 
 - Pipeline Stages
 1. IA/IF: Instruction Address & Fetch
 2. ID:    Instruction Decode
 3. EX:    Execute
 4. MA/MO: Memory Address & Operation
-5. RA/RO: Register Address & Operation
+5. WB:    Register Write Back
 
 - General purpose registers
 0-15 Rx : general purpose
@@ -119,11 +124,8 @@ data:
 testbench
 diad
 	reggp
-	regflag
-	reglr
-	meminstr
-	memdata
-	hazardunit
+	regsr
+	mem (instruction and data)
     stage1ia
     stage1if
     stage2id
@@ -137,6 +139,11 @@ Instruction set architecture (ISA)
 - microarchitecture instructions hidden to the ISA
 SRMOV PC, LR (store pc in link register)
 SRJCC LR+#imm (jump condition code to link register with immediate, only lower 8 bits of immediate are used) (jump if condition is met)
+SRADDis #imm, SSP (add sign-extended 12 bit immediate to shadow stack pointer)
+SRSUBis #imm, SSP (subtract sign-extended 12 bit immediate from shadow stack pointer)
+SRST LR, (SSP) (store link register to shadow stack pointer address)
+SRLD (SSP), St (load special temp from shadow stack pointer address)
+SRCMP St, LR (compare special temp with link register)
 
 - instructions directly supported by the microarchitecture
 NOP (no operation)
@@ -181,8 +188,8 @@ STis #imm, (Rt) (store signed sign-extended 12 bit immediate to data memory at a
 - instructions translated to microarchitecture instructions
 PUSH Rx, Ry, ... (push registers onto stack, SP is R15, implemented as: ST Rx, (R15) ; SUBi #1, R15)
 POP  Rx, Ry, ... (pop registers from stack, SP is R15, implemented as: LD (R15), Rx ; ADDi #1, R15)
-JSR (SRMOV PC, LR ; BRA Rs)
-JSRi #imm (SRMOV PC, LR ; BRAi #imm)
-BSRs (SRMOV PC, LR ; BRAs Rs)
-BSRis #imm (SRMOV PC, LR ; BRAis #imm)
-RET (SRJRA LR, #2)
+JSR Rs (SRST LR, (SSP) ; SRSUBis #1, SSP ; SRMOV PC, LR ; JRA Rs)
+JSRi #imm (SRST LR, (SSP) ; SRSUBis #1, SSP ; SRMOV PC, LR ; JRAi #imm)
+BSRs Rs (SRST LR, (SSP) ; SRSUBis #1, SSP ; SRMOV PC, LR ; BRAs Rs)
+BSRis #imm (SRST LR, (SSP) ; SRSUBis #1, SSP ; SRMOV PC, LR ; BRAis #imm)
+RET (SRADDis #1, SSP ; SRLD (SSP), St ; SRJRA LR, #2)
