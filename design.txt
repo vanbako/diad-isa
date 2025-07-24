@@ -8,7 +8,6 @@ Board: OrangeCrab or ULX3S
 instructions, all memories, (GP) general purpose registers, (SSP) shadow stack pointer, (LR) link register, (PC) program counter, (IR) immediate register are diad (24 bit) in size
 floating points are not needed yet. They are for future extension
 no branch prediction, no out-of-order execution, no speculative execution, no interrupts, no exceptions, no cache, no TLB, no MMU
-no instruction set architecture yet, only microarchitecture
 Use handshake signals (like ready/valid) between stages to allow stages to indicate when they can accept new data.
 No multi-cycle instructions like mul, div and mod yet
 Each stage has its own local hazard or control logic that communicates with adjacent stages.
@@ -133,6 +132,57 @@ diad
     stage4mo
     stage5wb
 
-Hazards
-- Read After Write Hazards
-- Control Hazards
+Instruction set architecture (ISA)
+
+- microarchitecture instructions hidden to the ISA
+SRMOV PC, LR (store pc in link register)
+SRJCC LR+#imm (jump condition code to link register with immediate, only lower 8 bits of immediate are used) (jump if condition is met)
+
+- instructions directly supported by the microarchitecture
+NOP (no operation)
+HLT (halt)
+LUI #imm (load upper immediate)
+MOV Rs, Rt (move)
+MOVi #imm, Rt (move full immediate)
+ADD Rs, Rt (add)
+ADDi #imm, Rt (add full immediate)
+ADDs Rs, Rt	(add signed)
+ADDis #imm, Rt (add sign-extended 12 bit immediate signed)
+SUB Rs, Rt (subtract)
+SUBi #imm, Rt (subtract full immediate)
+SUBs Rs, Rt	(subtract signed)
+SUBis #imm, Rt (subtract sign-extended 12 bit immediate)
+NOT Rt (bitwise not)
+AND Rs, Rt (bitwise and)
+ANDi #imm, Rt (bitwise and full immediate)
+OR Rs, Rt (bitwise or)
+ORi #imm, Rt (bitwise or full immediate)
+XOR Rs, Rt (bitwise xor)
+XORi #imm, Rt (bitwise xor full immediate)
+SHL Rs, Rt (shift left)
+SHLi #imm, Rt (shift left immediate, only lower 5 bits of the immediate are used)
+SHR Rs, Rt (shift right)
+SHRi #imm, Rt (shift right immediate, only lower 5 bits of the immediate are used)
+SHRs Rs, Rt (shift right signed)
+SHRis #imm, Rt (shift right signed immediate, only lower 5 bits of the immediate are used)
+CMP Rs, Rt (compare)
+CMPi #imm, Rt (compare full immediate)
+CMPs Rs, Rt (compare signed)
+CMPis #imm, Rt (compare signed sign-extended 12 bit immediate)
+JCC Rs (jump condition code, absolute address) (jump if condition is met)
+JCCi #imm (jump condition code full immediate, absolute address) (jump if condition is met)
+BCCs Rs (branch condition code, relative to pc) (branch if condition is met)
+BCCis #imm (branch condition code immediate signed, relative to pc only lower 12 bits of immediate) (branch if condition is met)
+LD (Rs), Rt (load from data memory)
+ST Rs, (Rt) (store Rs to data memory at address in Rt)
+STi #imm, (Rt) (store full immediate to data memory at address in Rt)
+STis #imm, (Rt) (store signed sign-extended 12 bit immediate to data memory at address in Rt)
+
+- instructions translated to microarchitecture instructions
+PUSH Rx, Ry, ... (push registers onto stack, SP is R15, implemented as: ST Rx, (R15) ; SUBi #1, R15)
+POP  Rx, Ry, ... (pop registers from stack, SP is R15, implemented as: LD (R15), Rx ; ADDi #1, R15)
+JSR (SRMOV PC, LR ; BRA Rs)
+JSRi #imm (SRMOV PC, LR ; BRAi #imm)
+BSRs (SRMOV PC, LR ; BRAs Rs)
+BSRis #imm (SRMOV PC, LR ; BRAis #imm)
+RET (SRJRA LR, #2)
