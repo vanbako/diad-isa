@@ -25,7 +25,7 @@ module testbench;
     integer tick = 0;
     always @(posedge r_clk) begin
 `ifdef DEBUGPC
-        $display("tick %03d : rst=%b PC  IA=%h IAIF=%h IFID=%h IDEX=%h   EXMA=%h   MAMO=%h   MOWB=%h   WB=%h",
+        $display("tick %03d : rst=%b PC  IA=%h IAIF=%h IFID=%h IDEX=%h     EXMA=%h     MAMO=%h     MOWB=%h     WB=%h",
             tick, r_rst,
             u_diad.r_ia_pc,
             u_diad.w_iaif_pc,
@@ -56,6 +56,18 @@ module testbench;
             u_diad.u_reggp.r_gp[14],
             u_diad.u_reggp.r_gp[15]);
 `endif
+`ifdef DEBUGSR
+        $display("tick %03d : rst=%b SR  FL=%h LR=%h ST=%h SSP=%h 4=%h 5=%h 6=%h 7=%h",
+            tick, r_rst,
+            u_diad.u_regsr.r_sr[0],
+            u_diad.u_regsr.r_sr[1],
+            u_diad.u_regsr.r_sr[2],
+            u_diad.u_regsr.r_sr[3],
+            u_diad.u_regsr.r_sr[4],
+            u_diad.u_regsr.r_sr[5],
+            u_diad.u_regsr.r_sr[6],
+            u_diad.u_regsr.r_sr[7]);
+`endif
 `ifdef DEBUGINSTR
         $display("tick %03d : rst=%b INSTR                     IFID=%h IDEX=%h   EXMA=%h   MAMO=%h   MOWB=%h   WB=%h",
             tick, r_rst,
@@ -67,7 +79,7 @@ module testbench;
             u_diad.w_wb_instr);
 `endif
 `ifdef DEBUGOPC
-        $display("tick %03d : rst=%b OPC                                   IDEX=%-8s EXMA=%-8s MAMO=%-8s MOWB=%-8s WB=%-8s",
+        $display("tick %03d : rst=%b OPC                                   IDEX=%-10s EXMA=%-10s MAMO=%-10s MOWB=%-10s WB=%-10s",
             tick, r_rst,
             opc2str(u_diad.w_opc),
             opc2str(u_diad.w_exma_opc),

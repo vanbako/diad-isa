@@ -1,4 +1,5 @@
 `include "src/sizes.vh"
+`include "src/sr.vh"
 
 module regsr(
     input wire                   iw_clk,
@@ -15,8 +16,12 @@ module regsr(
     integer i;
     always @(posedge iw_clk or posedge iw_rst) begin
         if (iw_rst) begin
-            for (i = 0; i <= `HBIT_SR; i = i + 1)
-                r_sr[i] <= `SIZE_DATA'b0;
+            for (i = 0; i <= `HBIT_SR; i = i + 1) begin
+                if (i == `INDEX_SSP)
+                    r_sr[i] <= 24'h000FFF;
+                else
+                    r_sr[i] <= `SIZE_DATA'b0;
+            end
         end else if (iw_write_enable) begin
             r_sr[iw_write_addr] <= iw_write_data;
         end

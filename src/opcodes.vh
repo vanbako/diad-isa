@@ -56,6 +56,7 @@
 `define OPC_SR_SRMOVu  8'h42
 `define OPC_SR_SRADDis 8'h43
 `define OPC_SR_SRSUBis 8'h44
+`define OPC_SR_SRCMPu  8'h4B
 `define OPC_SR_SRJCCu  8'h4C
 `define OPC_SR_SRLDu   8'h4E
 `define OPC_SR_SRSTu   8'h4F
@@ -116,6 +117,7 @@ function automatic [79:0] opc2str;
             `OPC_SR_SRJCCu: opc2str = "SR_SRJCCu";
             `OPC_SR_SRADDis:opc2str = "SR_SRADDis";
             `OPC_SR_SRSUBis:opc2str = "SR_SRSUBis";
+            `OPC_SR_SRCMPu: opc2str = "SR_SRCMPu";
             `OPC_SR_SRLDu:  opc2str = "SR_SRLDu";
             `OPC_SR_SRSTu:  opc2str = "SR_SRSTu";
             `OPC_ISA_PUSH:  opc2str = "ISA_PUSH";

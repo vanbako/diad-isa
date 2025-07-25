@@ -78,7 +78,7 @@ module diad(
     wire [`HBIT_DATA:0]   w_sr_read_data1;
     wire [`HBIT_DATA:0]   w_sr_read_data2;
 
-    reggp u_regsr(
+    regsr u_regsr(
         .iw_clk            (iw_clk),
         .iw_rst            (iw_rst),
         .iw_read_addr1     (w_sr_read_addr1),

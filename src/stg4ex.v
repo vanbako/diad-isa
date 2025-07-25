@@ -75,6 +75,7 @@ module stg_ex(
         r_ir         = {r_ui, iw_imm_val};
         r_se_imm_val = {{12{iw_imm_val[`HBIT_IMM]}}, iw_imm_val};
         r_se_immsr_val = {{16{iw_immsr_val[`HBIT_IMMSR]}}, iw_immsr_val};
+// GP forwarding
         if (ow_tgt_gp_we && (ow_tgt_gp == iw_src_gp))
             r_src_gp_val = ow_result;
         else if (iw_tgt_mamo_gp_we && (iw_tgt_mamo_gp == iw_src_gp))
@@ -91,6 +92,7 @@ module stg_ex(
             r_tgt_gp_val = iw_mowb_result;
         else
             r_tgt_gp_val = iw_gp_read_data2;
+// SR forwarding
         if (ow_tgt_sr_we && (ow_tgt_sr == iw_src_sr))
             r_src_sr_val = ow_result;
         else if (iw_tgt_mamo_sr_we && (iw_tgt_mamo_sr == iw_src_sr))
@@ -107,6 +109,7 @@ module stg_ex(
             r_tgt_sr_val = iw_mowb_result;
         else
             r_tgt_sr_val = iw_sr_read_data2;
+//
         if (iw_opc == `OPC_RU_JCCu  || iw_opc == `OPC_RS_BCCs  ||
             iw_opc == `OPC_IU_JCCiu || iw_opc == `OPC_IS_BCCis ||
             iw_opc == `OPC_SR_SRJCCu) begin
@@ -356,6 +359,10 @@ module stg_ex(
                 r_fl[`FLAG_V] =
                     ((r_se_imm_val[`HBIT_DATA-1] ^ r_tgt_sr_val[`HBIT_DATA-1]) &&
                     (r_tgt_sr_val[`HBIT_DATA-1] ^ r_result[`HBIT_DATA-1])) ? 1'b1 : 1'b0;
+            end
+            `OPC_SR_SRCMPu: begin
+                r_fl[`FLAG_Z] = (r_src_sr_val == r_tgt_sr_val) ? 1'b1 : 1'b0;
+                r_fl[`FLAG_C] = (r_src_sr_val < r_tgt_sr_val) ? 1'b1 : 1'b0;
             end
             `OPC_SR_SRJCCu: begin
                 if (or_branch_taken)
