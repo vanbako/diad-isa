@@ -126,14 +126,14 @@ diad
 	reggp
 	regsr
 	mem (instruction and data)
-    stage1ia
-    stage1if
-	stage2xt
-    stage3id
-    stage4ex
-    stage5ma
-    stage5mo
-    stage6wb
+    stage_ia
+    stage_if
+	stage_xt
+    stage_id
+    stage_ex
+    stage_ma
+    stage_mo
+    stage_wb
 
 Instruction set architecture (ISA)
 

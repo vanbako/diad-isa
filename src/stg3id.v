@@ -1,7 +1,7 @@
 `include "src/sizes.vh"
 `include "src/opcodes.vh"
 
-module stg2id(
+module stg_id(
     input wire                   iw_clk,
     input wire                   iw_rst,
     input wire  [`HBIT_ADDR:0]   iw_pc,
