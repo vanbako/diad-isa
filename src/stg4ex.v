@@ -107,9 +107,9 @@ module stg3ex(
             r_tgt_sr_val = iw_mowb_result;
         else
             r_tgt_sr_val = iw_sr_read_data2;
-        if (iw_opc == `OPC_R_JCC  || iw_opc == `OPC_RS_BCCs  ||
-            iw_opc == `OPC_I_JCCi || iw_opc == `OPC_IS_BCCis ||
-            iw_opc == `OPC_S_SRJCC) begin
+        if (iw_opc == `OPC_RU_JCCu  || iw_opc == `OPC_RS_BCCs  ||
+            iw_opc == `OPC_IU_JCCiu || iw_opc == `OPC_IS_BCCis ||
+            iw_opc == `OPC_SR_SRJCCu) begin
             case (iw_cc)
                 `CC_RA: or_branch_taken = 1'b1;
                 `CC_EQ: or_branch_taken =  r_fl[`FLAG_Z];
@@ -125,37 +125,37 @@ module stg3ex(
             endcase
         end
         case (iw_opc)
-            `OPC_R_MOV: begin
+            `OPC_RU_MOVu: begin
                 r_result = r_src_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_R_ADD: begin
+            `OPC_RU_ADDu: begin
                 r_result = r_src_gp_val + r_tgt_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_C] = (r_result < r_src_gp_val) ? 1'b1 : 1'b0;
             end
-            `OPC_R_SUB: begin
+            `OPC_RU_SUBu: begin
                 r_result = r_tgt_gp_val - r_src_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_C] = (r_tgt_gp_val < r_src_gp_val) ? 1'b1 : 1'b0;
             end
-            `OPC_R_NOT: begin
+            `OPC_RU_NOTu: begin
                 r_result = ~r_tgt_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_R_AND: begin
+            `OPC_RU_ANDu: begin
                 r_result = r_src_gp_val & r_tgt_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_R_OR: begin
+            `OPC_RU_ORu: begin
                 r_result = r_src_gp_val | r_tgt_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_R_XOR: begin
+            `OPC_RU_XORu: begin
                 r_result = r_src_gp_val ^ r_tgt_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_R_SHL: begin
+            `OPC_RU_SHLu: begin
                 if (r_src_gp_val >= `SIZE_DATA) begin
                     r_result = {`SIZE_DATA{1'b0}};
                     r_fl[`FLAG_V] = 1'b1;
@@ -165,7 +165,7 @@ module stg3ex(
                 end
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_R_SHR: begin
+            `OPC_RU_SHRu: begin
                 if (r_src_gp_val >= `SIZE_DATA) begin
                     r_result = {`SIZE_DATA{1'b0}};
                     r_fl[`FLAG_V] = 1'b1;
@@ -175,18 +175,18 @@ module stg3ex(
                 end
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_R_CMP: begin
+            `OPC_RU_CMPu: begin
                 r_fl[`FLAG_Z] = (r_src_gp_val == r_tgt_gp_val) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_C] = (r_src_gp_val < r_tgt_gp_val) ? 1'b1 : 1'b0;
             end
-            `OPC_R_JCC: begin
+            `OPC_RU_JCCu: begin
                 if (or_branch_taken)
                     or_branch_pc = iw_pc + r_src_gp_val;
             end
-            `OPC_R_LD: begin
+            `OPC_RU_LDu: begin
                 r_addr = r_src_gp_val;
             end
-            `OPC_R_ST: begin
+            `OPC_RU_STu: begin
                 r_addr = r_tgt_gp_val;
                 r_result = r_src_gp_val;
             end
@@ -230,33 +230,33 @@ module stg3ex(
                 if (or_branch_taken)
                     or_branch_pc = iw_pc + $signed(r_src_gp_val);
             end
-            `OPC_I_MOVi: begin
+            `OPC_IU_MOViu: begin
                 r_result = r_ir;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_I_ADDi: begin
+            `OPC_IU_ADDiu: begin
                 r_result = r_tgt_gp_val + r_ir;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_C] = (r_result < r_tgt_gp_val) ? 1'b1 : 1'b0;
             end
-            `OPC_I_SUBi: begin
+            `OPC_IU_SUBiu: begin
                 r_result = r_tgt_gp_val - r_ir;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_C] = (r_tgt_gp_val < r_ir) ? 1'b1 : 1'b0;
             end
-            `OPC_I_ANDi: begin
+            `OPC_IU_ANDiu: begin
                 r_result = r_tgt_gp_val & r_ir;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_I_ORi: begin
+            `OPC_IU_ORiu: begin
                 r_result = r_tgt_gp_val | r_ir;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_I_XORi: begin
+            `OPC_IU_XORiu: begin
                 r_result = r_tgt_gp_val ^ r_ir;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_I_SHLi: begin
+            `OPC_IU_SHLiu: begin
                 if (r_ir >= `SIZE_DATA) begin
                     r_result = {`SIZE_DATA{1'b0}};
                     r_fl[`FLAG_V] = 1'b1;
@@ -266,7 +266,7 @@ module stg3ex(
                 end
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_I_SHRi: begin
+            `OPC_IU_SHRiu: begin
                 if (r_ir >= `SIZE_DATA) begin
                     r_result = {`SIZE_DATA{1'b0}};
                     r_fl[`FLAG_V] = 1'b1;
@@ -276,15 +276,15 @@ module stg3ex(
                 end
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
-            `OPC_I_CMPi: begin
+            `OPC_IU_CMPiu: begin
                 r_fl[`FLAG_Z] = (r_tgt_gp_val == r_ir) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_C] = (r_tgt_gp_val < r_ir) ? 1'b1 : 1'b0;
             end
-            `OPC_I_JCCi: begin
+            `OPC_IU_JCCiu: begin
                 if (or_branch_taken)
                     or_branch_pc = r_ir;
             end
-            `OPC_I_STi: begin
+            `OPC_IU_STiu: begin
                 r_addr = r_tgt_gp_val;
                 r_result = r_ir;
             end
@@ -335,13 +335,13 @@ module stg3ex(
                 r_addr = r_tgt_gp_val;
                 r_result = r_se_imm_val;
             end
-            `OPC_S_LUI: begin
+            `OPC_RU_LUI: begin
                 r_ui = iw_imm_val;
             end
-            `OPC_S_SRMOV: begin
+            `OPC_SR_SRMOVu: begin
                 r_result = (iw_src_sr == `INDEX_PC) ? iw_pc : r_src_sr_val;
             end
-            `OPC_S_SRJCC: begin
+            `OPC_SR_SRJCCu: begin
                 if (or_branch_taken)
                     or_branch_pc = r_src_sr_val + r_se_immsr_val;
             end

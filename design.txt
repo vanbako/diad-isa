@@ -1,19 +1,18 @@
 - About
-I'm creating a diad (24 bit) 5-stage RISC microarchitecture core
+I'm creating a diad (24 bit) 6-stage RISC microarchitecture core
 The main goal is to keep the pipeline as simple as possible and to avoid stalls where possible
-Toolchain is Vivado Lab Edition 2024.2, language verilog
+Toolchain is currently iverilog
 
 - Details
 Board: OrangeCrab or ULX3S
 instructions, all memories, (GP) general purpose registers, (SSP) shadow stack pointer, (LR) link register, (PC) program counter, (IR) immediate register are diad (24 bit) in size
 floating points are not needed yet. They are for future extension
-no branch prediction, no out-of-order execution, no speculative execution, no interrupts, no exceptions, no cache, no TLB, no MMU
+no branch prediction (keep spectres away), no out-of-order nor speculative execution (no meltdown), no interrupts, no exceptions, no cache, no TLB, no MMU
 Use handshake signals (like ready/valid) between stages to allow stages to indicate when they can accept new data.
-No multi-cycle instructions like mul, div and mod yet
+No multi-cycle instructions like mul, div and mod (will be for coprocessor later)
 Each stage has its own local hazard or control logic that communicates with adjacent stages.
-Use the built-in synchronous Block RAM (BRAM) for both instruction and data memories, single-ported. Make sure to use a one-clock delay (fetch, mem & wb stages)
+Use the built-in synchronous Block RAM (BRAM) for both instruction and data memories (will be caches later), single-ported. Make sure to use a one-clock delay (fetch & mem stages)
 Memory initialisation is with a bootloader at runtime
-No memory controller yet
 
 - Instruction format
 24 bit (diad) total, only those needed for the instruction are coded
@@ -25,6 +24,7 @@ No memory controller yet
 [11-8]  SRC source special register (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
 [11-0]  IMM immediate value (12 bit) (goes to upper 12 bits of IR with the LUI instruction, lower 12 bits for all other instructions)
 [7-0]   IMMsr immediate value (8 bit) (lower 8 bits for SRJCC instruction)
+[14-0]  Register bits for PUSH and POP instructions
 unused for the instruction:
 [x-y]   RSV reserved, must be all 0 (for the moment not checked, a check must be implemented when implementing interrupts where it should generate an illegal instruction interrupt if RSV bits are not 0)
 
@@ -128,11 +128,12 @@ diad
 	mem (instruction and data)
     stage1ia
     stage1if
-    stage2id
-    stage3ex
-    stage4ma
-    stage4mo
-    stage5wb
+	stage2xt
+    stage3id
+    stage4ex
+    stage5ma
+    stage5mo
+    stage6wb
 
 Instruction set architecture (ISA)
 
