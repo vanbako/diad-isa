@@ -33,10 +33,10 @@ module stg_mo(
         ow_mem_wdata[1] = `SIZE_DATA'b0;
         r_result = iw_result;
         case (iw_opc)
-            `OPC_RU_LDu: begin
+            `OPC_RU_LDu, `OPC_SR_SRLDu: begin
                 r_result = iw_mem_rdata[iw_mem_mp];
             end
-            `OPC_RU_STu, `OPC_IU_STiu, `OPC_IS_STis: begin
+            `OPC_RU_STu, `OPC_IU_STiu, `OPC_IS_STis, `OPC_SR_SRSTu: begin
                 ow_mem_we[iw_mem_mp] = 1'b1;
                 ow_mem_wdata[iw_mem_mp] = iw_result;
             end

@@ -34,8 +34,9 @@ module stg_ma(
     reg                  r_mem_mp_latch;
     reg [`HBIT_DATA:0]   r_result_latch;
     always @(*) begin
-        if ((iw_opc == `OPC_RU_LDu)  || (iw_opc == `OPC_RU_STu) ||
-            (iw_opc == `OPC_IU_STiu) || (iw_opc == `OPC_IS_STis)) begin
+        if ((iw_opc == `OPC_RU_LDu)   || (iw_opc == `OPC_RU_STu)  ||
+            (iw_opc == `OPC_IU_STiu)  || (iw_opc == `OPC_IS_STis) ||
+            (iw_opc == `OPC_SR_SRLDu) || (iw_opc == `OPC_SR_SRSTu)) begin
             if (r_mem_mp_latch)
                 ow_mem_addr[0] = iw_addr;
             else

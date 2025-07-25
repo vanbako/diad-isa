@@ -125,6 +125,9 @@ module stg_ex(
             endcase
         end
         case (iw_opc)
+            `OPC_RU_LUI: begin
+                r_ui = iw_imm_val;
+            end
             `OPC_RU_MOVu: begin
                 r_result = r_src_gp_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
@@ -335,15 +338,35 @@ module stg_ex(
                 r_addr = r_tgt_gp_val;
                 r_result = r_se_imm_val;
             end
-            `OPC_RU_LUI: begin
-                r_ui = iw_imm_val;
-            end
             `OPC_SR_SRMOVu: begin
                 r_result = (iw_src_sr == `INDEX_PC) ? iw_pc : r_src_sr_val;
+            end
+            `OPC_SR_SRADDis: begin
+                r_result = $signed(r_tgt_sr_val) + $signed(r_se_imm_val);
+                r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
+                r_fl[`FLAG_N] = ($signed(r_result) < 0) ? 1'b1 : 1'b0;
+                r_fl[`FLAG_V] =
+                    ((~(r_tgt_sr_val[`HBIT_DATA-1] ^ r_se_imm_val[`HBIT_DATA-1])) &&
+                    (r_tgt_sr_val[`HBIT_DATA-1] ^ r_result[`HBIT_DATA-1])) ? 1'b1 : 1'b0;
+            end
+            `OPC_SR_SRSUBis: begin
+                r_result = $signed(r_tgt_sr_val) - $signed(r_se_imm_val);
+                r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
+                r_fl[`FLAG_N] = ($signed(r_result) < 0) ? 1'b1 : 1'b0;
+                r_fl[`FLAG_V] =
+                    ((r_se_imm_val[`HBIT_DATA-1] ^ r_tgt_sr_val[`HBIT_DATA-1]) &&
+                    (r_tgt_sr_val[`HBIT_DATA-1] ^ r_result[`HBIT_DATA-1])) ? 1'b1 : 1'b0;
             end
             `OPC_SR_SRJCCu: begin
                 if (or_branch_taken)
                     or_branch_pc = r_src_sr_val + r_se_immsr_val;
+            end
+            `OPC_SR_SRLDu: begin
+                r_addr = r_src_sr_val;
+            end
+            `OPC_SR_SRSTu: begin
+                r_addr = r_tgt_sr_val;
+                r_result = r_src_sr_val;
             end
             default: begin
                 r_result = `SIZE_DATA'b0;
