@@ -23,16 +23,31 @@ module hazard(
     input wire                  iw_mowb_tgt_sr_we,
     input wire [`HBIT_TGT_GP:0] iw_tgt_sr,
     input wire [`HBIT_SRC_GP:0] iw_src_sr,
+    input wire [`HBIT_DATA:0]   iw_instr,
     output wire                 ow_stall
 );
     reg [2:0] r_cnt;
+    wire [`HBIT_OPC:0] w_opc = iw_instr[`HBIT_INSTR_OPC:`LBIT_INSTR_OPC];
+    wire w_is_branch_reg =
+        (w_opc == `OPC_RU_JCCu)     ||
+        (w_opc == `OPC_RS_BCCs)     ||
+        (w_opc == `OPC_SR_SRJCCu);
+    // wire w_hazard_branch1 =
+    //     ((iw_mowb_opc == `OPC_RU_LDu)   && iw_mowb_tgt_gp_we && ((iw_mowb_tgt_gp == iw_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]) || (iw_mowb_tgt_gp == iw_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]))) ||
+    //     ((iw_mowb_opc == `OPC_SR_SRLDu) && iw_mowb_tgt_sr_we && ((iw_mowb_tgt_sr == iw_instr[`HBIT_INSTR_SRC_SR:`LBIT_INSTR_SRC_SR]) || (iw_mowb_tgt_sr == iw_instr[`HBIT_INSTR_TGT_SR:`LBIT_INSTR_TGT_SR])));
+    // wire w_hazard_branch1 =
+    //     ((iw_mamo_opc == `OPC_RU_LDu)   && iw_mamo_tgt_gp_we && ((iw_mamo_tgt_gp == iw_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]) || (iw_mamo_tgt_gp == iw_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]))) ||
+    //     ((iw_mamo_opc == `OPC_SR_SRLDu) && iw_mamo_tgt_sr_we && ((iw_mamo_tgt_sr == iw_instr[`HBIT_INSTR_SRC_SR:`LBIT_INSTR_SRC_SR]) || (iw_mamo_tgt_sr == iw_instr[`HBIT_INSTR_TGT_SR:`LBIT_INSTR_TGT_SR])));
+    wire w_hazard_branch1 =
+        ((iw_exma_opc == `OPC_RU_LDu)   && iw_exma_tgt_gp_we && ((iw_exma_tgt_gp == iw_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]) || (iw_exma_tgt_gp == iw_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]))) ||
+        ((iw_exma_opc == `OPC_SR_SRLDu) && iw_exma_tgt_sr_we && ((iw_exma_tgt_sr == iw_instr[`HBIT_INSTR_SRC_SR:`LBIT_INSTR_SRC_SR]) || (iw_exma_tgt_sr == iw_instr[`HBIT_INSTR_TGT_SR:`LBIT_INSTR_TGT_SR])));
+    // wire w_hazard1 =
+    //     ((iw_mowb_opc == `OPC_RU_LDu)   && iw_mowb_tgt_gp_we && ((iw_mowb_tgt_gp == iw_src_gp) || (iw_mowb_tgt_gp == iw_tgt_gp))) ||
+    //     ((iw_mowb_opc == `OPC_SR_SRLDu) && iw_mowb_tgt_sr_we && ((iw_mowb_tgt_sr == iw_src_sr) || (iw_mowb_tgt_sr == iw_tgt_sr)));
+    // wire w_hazard1 =
+    //     ((iw_mamo_opc == `OPC_RU_LDu)   && iw_mamo_tgt_gp_we && ((iw_mamo_tgt_gp == iw_src_gp) || (iw_mamo_tgt_gp == iw_tgt_gp))) ||
+    //     ((iw_mamo_opc == `OPC_SR_SRLDu) && iw_mamo_tgt_sr_we && ((iw_mamo_tgt_sr == iw_src_sr) || (iw_mamo_tgt_sr == iw_tgt_sr)));
     wire w_hazard1 =
-        ((iw_mowb_opc == `OPC_RU_LDu)   && iw_mowb_tgt_gp_we && ((iw_mowb_tgt_gp == iw_src_gp) || (iw_mowb_tgt_gp == iw_tgt_gp))) ||
-        ((iw_mowb_opc == `OPC_SR_SRLDu) && iw_mowb_tgt_sr_we && ((iw_mowb_tgt_sr == iw_src_sr) || (iw_mowb_tgt_sr == iw_tgt_sr)));
-    wire w_hazard2 =
-        ((iw_mamo_opc == `OPC_RU_LDu)   && iw_mamo_tgt_gp_we && ((iw_mamo_tgt_gp == iw_src_gp) || (iw_mamo_tgt_gp == iw_tgt_gp))) ||
-        ((iw_mamo_opc == `OPC_SR_SRLDu) && iw_mamo_tgt_sr_we && ((iw_mamo_tgt_sr == iw_src_sr) || (iw_mamo_tgt_sr == iw_tgt_sr)));
-    wire w_hazard3 =
         ((iw_exma_opc == `OPC_RU_LDu)   && iw_exma_tgt_gp_we && ((iw_exma_tgt_gp == iw_src_gp) || (iw_exma_tgt_gp == iw_tgt_gp))) ||
         ((iw_exma_opc == `OPC_SR_SRLDu) && iw_exma_tgt_sr_we && ((iw_exma_tgt_sr == iw_src_sr) || (iw_exma_tgt_sr == iw_tgt_sr)));
     always @(posedge iw_clk or posedge iw_rst) begin
@@ -41,15 +56,15 @@ module hazard(
         end else if (r_cnt != 3'd0) begin
             r_cnt <= r_cnt - 3'd1;
             $display("HAZARD: stall cycle");
-        end else if (w_hazard1) begin
+        end else if (w_hazard1 || w_hazard_branch1) begin
             $display("HAZARD: Hazard 1 detected, stalling for 1 cycles");
             r_cnt <= 3'd1;
-        end else if (w_hazard2) begin
-            $display("HAZARD: Hazard 2 detected, stalling for 2 cycles");
-            r_cnt <= 3'd2;
-        end else if (w_hazard3) begin
-            $display("HAZARD: Hazard 3 detected, stalling for 3 cycles");
-            r_cnt <= 3'd3;
+        // end else if (w_hazard2 || w_hazard_branch2) begin
+        //     $display("HAZARD: Hazard 2 detected, stalling for 2 cycles");
+        //     r_cnt <= 3'd2;
+        // end else if (w_hazard3 || w_hazard_branch3) begin
+        //     $display("HAZARD: Hazard 3 detected, stalling for 3 cycles");
+        //     r_cnt <= 3'd3;
         end
     end
     assign ow_stall = (r_cnt != 3'd0);

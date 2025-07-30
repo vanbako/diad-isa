@@ -255,6 +255,7 @@ module diad(
         .iw_mowb_tgt_sr_we(w_mowb_tgt_sr_we),
         .iw_tgt_sr        (w_tgt_sr),
         .iw_src_sr        (w_src_sr),
+        .iw_instr         (w_ifid_instr),
         .ow_stall         (w_stall)
     );
 
