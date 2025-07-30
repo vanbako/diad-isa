@@ -4,6 +4,7 @@
 `include "src/cc.vh"
 `include "src/sizes.vh"
 `include "src/sr.vh"
+`include "src/flags.vh"
 
 module testbench;
     reg r_clk;
@@ -18,14 +19,14 @@ module testbench;
         r_rst = 1'b1;
         #10;
         r_rst = 1'b0;
-        repeat (90) @(posedge r_clk);
-        // repeat (30) @(posedge r_clk);
+        repeat (`TICKS) @(posedge r_clk);
+        #9;
         $finish;
     end
     integer tick = 0;
     always @(posedge r_clk) begin
 `ifdef DEBUGPC
-        $display("tick %03d : rst=%b PC  IA=%h IAIF=%h IFID=%h IDEX=%h     EXMA=%h     MAMO=%h     MOWB=%h     WB=%h",
+        $display("tick %03d : rst=%b PC  IA=%h IAIF=%h IFID=%h IDEX=%h   EXMA=%h   MAMO=%h   MOWB=%h   WB=%h",
             tick, r_rst,
             u_diad.r_ia_pc,
             u_diad.w_iaif_pc,
@@ -69,7 +70,7 @@ module testbench;
             u_diad.u_regsr.r_sr[7]);
 `endif
 `ifdef DEBUGINSTR
-        $display("tick %03d : rst=%b INSTR                     IFID=%h IDEX=%h   EXMA=%h   MAMO=%h   MOWB=%h   WB=%h",
+        $display("tick %03d : rst=%b INSTR                     IFID=%h IDEX=%h     EXMA=%h     MAMO=%h     MOWB=%h     WB=%h",
             tick, r_rst,
             u_diad.w_ifid_instr,
             u_diad.w_idex_instr,
@@ -88,7 +89,7 @@ module testbench;
             opc2str(u_diad.w_wb_opc));
 `endif
 `ifdef DEBUGTGT_GP
-        $display("tick %03d : rst=%b TGT_GP                                IDEX=%h        EXMA=%h        MAMO=%h        MOWB=%h        WB=%h",
+        $display("tick %03d : rst=%b TGT_GP                                IDEX=%h          EXMA=%h          MAMO=%h          MOWB=%h          WB=%h",
             tick, r_rst,
             u_diad.w_tgt_gp,
             u_diad.w_exma_tgt_gp,
@@ -97,7 +98,7 @@ module testbench;
             u_diad.w_wb_tgt_gp);
 `endif
 `ifdef DEBUGTGT_SR
-        $display("tick %03d : rst=%b TGT_SR                                IDEX=%h        EXMA=%h        MAMO=%h        MOWB=%h        WB=%h",
+        $display("tick %03d : rst=%b TGT_SR                                IDEX=%h          EXMA=%h          MAMO=%h          MOWB=%h          WB=%h",
             tick, r_rst,
             u_diad.w_tgt_sr,
             u_diad.w_exma_tgt_sr,
@@ -106,7 +107,7 @@ module testbench;
             u_diad.w_wb_tgt_sr);
 `endif
 `ifdef DEBUGRESULT
-        $display("tick %03d : rst=%b RESULT                                              EXMA=%h   MAMO=%h   MOWB=%h   WB=%h",
+        $display("tick %03d : rst=%b RESULT                                                EXMA=%h     MAMO=%h     MOWB=%h     WB=%h",
             tick, r_rst,
             u_diad.w_exma_result,
             u_diad.w_mamo_result,
@@ -116,10 +117,10 @@ module testbench;
 `ifdef DEBUGFLAGS
         $display("tick %03d : rst=%b FLAGS zero=%s negative=%s carry=%s overflow=%s",
             tick, r_rst,
-            (u_diad.u_stg3ex.r_fl[`FLAG_Z]) ? "yes" : "no ",
-            (u_diad.u_stg3ex.r_fl[`FLAG_N]) ? "yes" : "no ",
-            (u_diad.u_stg3ex.r_fl[`FLAG_C]) ? "yes" : "no ",
-            (u_diad.u_stg3ex.r_fl[`FLAG_V]) ? "yes" : "no ");
+            (u_diad.u_stg_ex.r_fl[`FLAG_Z]) ? "yes" : "no ",
+            (u_diad.u_stg_ex.r_fl[`FLAG_N]) ? "yes" : "no ",
+            (u_diad.u_stg_ex.r_fl[`FLAG_C]) ? "yes" : "no ",
+            (u_diad.u_stg_ex.r_fl[`FLAG_V]) ? "yes" : "no ");
 `endif
 `ifdef DEBUGDECODE
         $display("tick %03d : rst=%b DECODE OPC=%-8s SGN_EN=%b IMM_EN=%b IMM_VAL=%h IMMSR_VAL=%h CC=%2s TGT_GP=%h TGT_SR=%h SRC_GP=%h SRC_SR=%h",
@@ -138,7 +139,7 @@ module testbench;
 `ifdef DEBUGADDR
         $display("tick %03d : rst=%b ADDR %h %h",
             tick, r_rst,
-            u_diad.u_stg3ex.r_addr,
+            u_diad.u_stg_ex.r_addr,
             u_diad.w_exma_addr);
 `endif
 `ifdef DEBUGBRANCH
@@ -158,6 +159,12 @@ module testbench;
             u_diad.u_dmem.r_mem[5],
             u_diad.u_dmem.r_mem[6],
             u_diad.u_dmem.r_mem[7]);
+`endif
+`ifdef DEBUGMEMIF
+        $display("tick %03d : rst=%b MEMIF 0=%h 1=%h",
+            tick, r_rst,
+            u_diad.w_dmem_rdata[0],
+            u_diad.w_dmem_rdata[1]);
 `endif
         tick = tick + 1;
     end
