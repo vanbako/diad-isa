@@ -4,6 +4,7 @@ tests=(
   "ADDu 15"
   "SUBu 13"
   "LDu 15"
+  "subroutines 60"
 )
 param="$1"
 shift

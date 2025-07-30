@@ -160,6 +160,18 @@ module testbench;
             u_diad.u_dmem.r_mem[6],
             u_diad.u_dmem.r_mem[7]);
 `endif
+`ifdef DEBUGMEMSSP
+        $display("tick %03d : rst=%b MEM ff8=%h ff9=%h ffa=%h ffb=%h ffc=%h ffd=%h ffe=%h fff=%h",
+            tick, r_rst,
+            u_diad.u_dmem.r_mem['hff8],
+            u_diad.u_dmem.r_mem['hff9],
+            u_diad.u_dmem.r_mem['hffa],
+            u_diad.u_dmem.r_mem['hffb],
+            u_diad.u_dmem.r_mem['hffc],
+            u_diad.u_dmem.r_mem['hffd],
+            u_diad.u_dmem.r_mem['hffe],
+            u_diad.u_dmem.r_mem['hfff]);
+`endif
 `ifdef DEBUGMEMIF
         $display("tick %03d : rst=%b MEMIF 0=%h 1=%h",
             tick, r_rst,
