@@ -315,18 +315,18 @@ module stg_ex(
             `OPC_SR_SRJCCu: begin
                 if (r_branch_taken) begin
                     r_branch_pc = iw_src_sr_val + r_se_immsr_val;
-                    $display("SRJCCu: branch_pc=%h", r_branch_pc);
+                    // $display("SRJCCu: branch_pc=%h", r_branch_pc);
                 end
-                $display("SRJCCu: branch_pc=%h", r_branch_pc);
+                // $display("SRJCCu: branch_pc=%h", r_branch_pc);
             end
             `OPC_SR_SRLDu: begin
                 r_addr = iw_src_sr_val;
-                $display("SRLDu: addr=%h", r_addr);
+                // $display("SRLDu: addr=%h", r_addr);
             end
             `OPC_SR_SRSTu: begin
                 r_addr = iw_tgt_sr_val;
                 r_result = iw_src_sr_val;
-                $display("SRSTu: addr=%h result=%h", r_addr, r_result);
+                // $display("SRSTu: addr=%h result=%h", r_addr, r_result);
             end
             default: begin
                 r_result = `SIZE_DATA'b0;
