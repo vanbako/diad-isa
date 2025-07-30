@@ -26,7 +26,7 @@ module testbench;
     integer tick = 0;
     always @(posedge r_clk) begin
 `ifdef DEBUGPC
-        $display("tick %03d : rst=%b PC  IA=%h IAIF=%h IFID=%h IDEX=%h   EXMA=%h   MAMO=%h   MOWB=%h   WB=%h",
+        $display("tick %03d : rst=%b PC  IA=%h IAIF=%h IFID=%h IDEX=%h     EXMA=%h     MAMO=%h     MOWB=%h     WB=%h",
             tick, r_rst,
             u_diad.r_ia_pc,
             u_diad.w_iaif_pc,
