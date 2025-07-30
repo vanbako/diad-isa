@@ -237,10 +237,19 @@ module diad(
         .iw_clk           (iw_clk),
         .iw_rst           (iw_rst),
         .iw_exma_opc      (w_exma_opc),
+        .iw_mamo_opc      (w_mamo_opc),
         .iw_exma_tgt_gp   (w_exma_tgt_gp),
         .iw_exma_tgt_gp_we(w_exma_tgt_gp_we),
+        .iw_mamo_tgt_gp   (w_mamo_tgt_gp),
+        .iw_mamo_tgt_gp_we(w_mamo_tgt_gp_we),
         .iw_tgt_gp        (w_tgt_gp),
         .iw_src_gp        (w_src_gp),
+        .iw_exma_tgt_sr   (w_exma_tgt_sr),
+        .iw_exma_tgt_sr_we(w_exma_tgt_sr_we),
+        .iw_mamo_tgt_sr   (w_mamo_tgt_sr),
+        .iw_mamo_tgt_sr_we(w_mamo_tgt_sr_we),
+        .iw_tgt_sr        (w_tgt_sr),
+        .iw_src_sr        (w_src_sr),
         .ow_stall         (w_stall)
     );
 

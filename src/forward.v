@@ -48,20 +48,32 @@ module forward(
             or_tgt_gp_val = iw_mowb_result;
         else
             or_tgt_gp_val = iw_gp_read_data2;
-        if (iw_tgt_exma_sr_we && (iw_tgt_exma_sr == iw_src_sr))
+        if (iw_tgt_exma_sr_we && (iw_tgt_exma_sr == iw_src_sr)) begin
             or_src_sr_val = iw_exma_result;
-        else if (iw_tgt_mamo_sr_we && (iw_tgt_mamo_sr == iw_src_sr))
+            // $display("EXMA: src_sr=%h result=%h", iw_src_sr, iw_exma_result);
+        end
+        else if (iw_tgt_mamo_sr_we && (iw_tgt_mamo_sr == iw_src_sr)) begin
             or_src_sr_val = iw_mamo_result;
-        else if (iw_tgt_mowb_sr_we && (iw_tgt_mowb_sr == iw_src_sr))
+            // $display("MAMO: src_sr=%h result=%h", iw_src_sr, iw_mamo_result);
+        end
+        else if (iw_tgt_mowb_sr_we && (iw_tgt_mowb_sr == iw_src_sr)) begin
             or_src_sr_val = iw_mowb_result;
+            // $display("MOWB: src_sr=%h result=%h", iw_src_sr, iw_mowb_result);
+        end
         else
             or_src_sr_val = iw_sr_read_data1;
-        if (iw_tgt_exma_sr_we && (iw_tgt_exma_sr == iw_tgt_sr))
+        if (iw_tgt_exma_sr_we && (iw_tgt_exma_sr == iw_tgt_sr)) begin
             or_tgt_sr_val = iw_exma_result;
-        else if (iw_tgt_mamo_sr_we && (iw_tgt_mamo_sr == iw_tgt_sr))
+            // $display("EXMA: tgt_sr=%h result=%h", iw_tgt_sr, iw_exma_result);
+        end
+        else if (iw_tgt_mamo_sr_we && (iw_tgt_mamo_sr == iw_tgt_sr)) begin
             or_tgt_sr_val = iw_mamo_result;
-        else if (iw_tgt_mowb_sr_we && (iw_tgt_mowb_sr == iw_tgt_sr))
+            // $display("MAMO: tgt_sr=%h result=%h", iw_tgt_sr, iw_mamo_result);
+        end
+        else if (iw_tgt_mowb_sr_we && (iw_tgt_mowb_sr == iw_tgt_sr)) begin
             or_tgt_sr_val = iw_mowb_result;
+            // $display("MOWB: tgt_sr=%h result=%h", iw_tgt_sr, iw_mowb_result);
+        end
         else
             or_tgt_sr_val = iw_sr_read_data2;
     end

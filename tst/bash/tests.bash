@@ -3,7 +3,7 @@ tests=(
   "MOVu 15"
   "ADDu 15"
   "SUBu 13"
-  "LDu 15"
+  "LDu 20"
 )
 param="$1"
 for test in "${tests[@]}"; do

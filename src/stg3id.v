@@ -78,7 +78,8 @@ module stg_id(
         (w_opc == `OPC_SR_SRMOVu)   || (w_opc == `OPC_SR_SRADDis) ||
         (w_opc == `OPC_SR_SRSUBis)  || (w_opc == `OPC_SR_SRLDu);
     wire w_has_tgt_sr =
-        w_tgt_sr_we                 || (w_opc == `OPC_SR_SRCMPu);
+        w_tgt_sr_we                 || (w_opc == `OPC_SR_SRCMPu)  ||
+        (w_opc == `OPC_SR_SRSTu);
     wire w_has_src_gp =
         (w_opc == `OPC_RU_MOVu)     || (w_opc == `OPC_RU_ADDu)    ||
         (w_opc == `OPC_RU_SUBu)     || (w_opc == `OPC_RU_ANDu)    ||
@@ -91,7 +92,8 @@ module stg_id(
         (w_opc == `OPC_RS_BCCs);
     wire w_has_src_sr =
         (w_opc == `OPC_SR_SRMOVu)   || (w_opc == `OPC_SR_SRCMPu)  ||
-        (w_opc == `OPC_SR_SRJCCu)   || (w_opc == `OPC_SR_SRSTu);
+        (w_opc == `OPC_SR_SRJCCu)   || (w_opc == `OPC_SR_SRLDu)   ||
+        (w_opc == `OPC_SR_SRSTu);
     wire [`HBIT_IMM:0]    w_imm_val   = w_imm_en ? iw_instr[`HBIT_INSTR_IMM:`LBIT_INSTR_IMM] : `SIZE_IMM'b0;
     wire [`HBIT_IMMSR:0]  w_immsr_val = (w_opc == `OPC_SR_SRJCCu) ? iw_instr[`HBIT_INSTR_IMMSR:`LBIT_INSTR_IMMSR] : `SIZE_IMMSR'b0;
     wire [`HBIT_CC:0]     w_cc        = w_is_branch ? iw_instr[`HBIT_INSTR_CC:`LBIT_INSTR_CC] : `SIZE_CC'b0;

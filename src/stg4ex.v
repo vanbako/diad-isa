@@ -53,9 +53,9 @@ module stg_ex(
         r_ir         = {r_ui, iw_imm_val};
         r_se_imm_val = {{12{iw_imm_val[`HBIT_IMM]}}, iw_imm_val};
         r_se_immsr_val = {{16{iw_immsr_val[`HBIT_IMMSR]}}, iw_immsr_val};
-        if (iw_opc == `OPC_RU_JCCu  || iw_opc == `OPC_RS_BCCs  ||
+        if ((iw_opc == `OPC_RU_JCCu  || iw_opc == `OPC_RS_BCCs  ||
             iw_opc == `OPC_IU_JCCiu || iw_opc == `OPC_IS_BCCis ||
-            iw_opc == `OPC_SR_SRJCCu) begin
+            iw_opc == `OPC_SR_SRJCCu) && !iw_stall) begin
             case (iw_cc)
                 `CC_RA: or_branch_taken = 1'b1;
                 `CC_EQ: or_branch_taken =  r_fl[`FLAG_Z];
@@ -129,7 +129,7 @@ module stg_ex(
                 r_fl[`FLAG_C] = (iw_src_gp_val < iw_tgt_gp_val) ? 1'b1 : 1'b0;
             end
             `OPC_RU_JCCu: begin
-                if (or_branch_taken)
+                if (or_branch_taken && !iw_stall)
                     or_branch_pc = iw_pc + iw_src_gp_val;
             end
             `OPC_RU_LDu: begin
@@ -176,7 +176,7 @@ module stg_ex(
                     (iw_src_gp_val[`HBIT_DATA] ^ s_diff[`HBIT_DATA]));
             end
             `OPC_RS_BCCs: begin
-                if (or_branch_taken)
+                if (or_branch_taken && !iw_stall)
                     or_branch_pc = iw_pc + $signed(iw_src_gp_val);
             end
             `OPC_IU_MOViu: begin
@@ -230,7 +230,7 @@ module stg_ex(
                 r_fl[`FLAG_C] = (iw_tgt_gp_val < r_ir) ? 1'b1 : 1'b0;
             end
             `OPC_IU_JCCiu: begin
-                if (or_branch_taken)
+                if (or_branch_taken && !iw_stall)
                     or_branch_pc = r_ir;
             end
             `OPC_IU_STiu: begin
@@ -277,7 +277,7 @@ module stg_ex(
                                  (iw_tgt_gp_val[`HBIT_DATA] ^ s_diff[`HBIT_DATA]));
             end
             `OPC_IS_BCCis: begin
-                if (or_branch_taken)
+                if (or_branch_taken && !iw_stall)
                     or_branch_pc = iw_pc + $signed(r_se_imm_val);
             end
             `OPC_IS_STis: begin
@@ -308,15 +308,20 @@ module stg_ex(
                 r_fl[`FLAG_C] = (iw_src_sr_val < iw_tgt_sr_val) ? 1'b1 : 1'b0;
             end
             `OPC_SR_SRJCCu: begin
-                if (or_branch_taken)
+                if (or_branch_taken && !iw_stall) begin
                     or_branch_pc = iw_src_sr_val + r_se_immsr_val;
+                    // $display("SRJCCu: branch_pc=%h", or_branch_pc);
+                end
+                // $display("SRJCCu: branch_pc=%h", or_branch_pc);
             end
             `OPC_SR_SRLDu: begin
                 r_addr = iw_src_sr_val;
+                // $display("SRLDu: addr=%h", r_addr);
             end
             `OPC_SR_SRSTu: begin
                 r_addr = iw_tgt_sr_val;
                 r_result = iw_src_sr_val;
+                // $display("SRSTu: addr=%h result=%h", r_addr, r_result);
             end
             default: begin
                 r_result = `SIZE_DATA'b0;
