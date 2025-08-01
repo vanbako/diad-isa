@@ -3,8 +3,9 @@ tests=(
   "MOVu 15"
   "ADDu 15"
   "SUBu 13"
-  "LDu 15"
-  "subroutines 100"
+  "LDu 20"
+  "subr1 120"
+  "subr2 180"
 )
 param="$1"
 shift
