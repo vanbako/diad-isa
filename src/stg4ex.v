@@ -372,17 +372,17 @@ module stg_ex(
             r_branch_taken_latch <= 1'b0;
             r_branch_pc_latch    <= `SIZE_ADDR'b0;
         end else if (iw_stall) begin
-            r_pc_latch           <= r_pc_latch;
-            r_instr_latch        <= r_instr_latch;
-            r_opc_latch          <= r_opc_latch;
-            r_tgt_gp_latch       <= r_tgt_gp_latch;
-            r_tgt_gp_we_latch    <= r_tgt_gp_we_latch;
-            r_tgt_sr_latch       <= r_tgt_sr_latch;
-            r_tgt_sr_we_latch    <= r_tgt_sr_we_latch;
-            r_addr_latch         <= r_addr_latch;
-            r_result_latch       <= r_result_latch;
-            r_branch_taken_latch <= r_branch_taken;
-            r_branch_pc_latch    <= r_branch_pc;
+            r_pc_latch           <= `SIZE_ADDR'b0;
+            r_instr_latch        <= `SIZE_DATA'b0;
+            r_opc_latch          <= `SIZE_OPC'b0;
+            r_tgt_gp_latch       <= `SIZE_TGT_GP'b0;
+            r_tgt_gp_we_latch    <= 1'b0;
+            r_tgt_sr_latch       <= `SIZE_TGT_SR'b0;
+            r_tgt_sr_we_latch    <= 1'b0;
+            r_addr_latch         <= `SIZE_ADDR'b0;
+            r_result_latch       <= `SIZE_DATA'b0;
+            r_branch_taken_latch <= 1'b0;
+            r_branch_pc_latch    <= `SIZE_ADDR'b0;
         end else begin
             r_pc_latch           <= iw_pc;
             r_instr_latch        <= iw_instr;
