@@ -20,6 +20,8 @@
 `define HBIT_DATA 23
 `define HBIT_FLAG  3
 
+`define HBIT_INSTRSET     23
+`define LBIT_INSTRSET     20
 `define HBIT_INSTR_OPC    23
 `define LBIT_INSTR_OPC    16
 `define HBIT_INSTR_CC     15

@@ -3,6 +3,14 @@
 
 `include "src/sizes.vh"
 
+// INSTRSET
+`define INSTRSET_RU   4'h0
+`define INSTRSET_RS   4'h1
+`define INSTRSET_IU   4'h2
+`define INSTRSET_IS   4'h3
+`define INSTRSET_SR   4'h4
+`define INSTRSET_ISA  4'h5
+
 // OPCODE DEFINITIONS
 `define OPC_NOP       8'h00
 
