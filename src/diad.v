@@ -34,14 +34,16 @@ module diad(
     wire                w_ia_valid;
     reg  [`HBIT_ADDR:0] r_ia_pc;
     wire [`HBIT_ADDR:0] w_iaif_pc;
-    wire [`HBIT_ADDR:0] w_ifid_pc;
+    wire [`HBIT_ADDR:0] w_ifxt_pc;
+    wire [`HBIT_ADDR:0] w_xtid_pc;
     wire [`HBIT_ADDR:0] w_idex_pc;
     wire [`HBIT_ADDR:0] w_exma_pc;
     wire [`HBIT_ADDR:0] w_mamo_pc;
     wire [`HBIT_ADDR:0] w_mowb_pc;
     wire [`HBIT_ADDR:0] w_wb_pc;
 
-    wire [`HBIT_DATA:0] w_ifid_instr;
+    wire [`HBIT_DATA:0] w_ifxt_instr;
+    wire [`HBIT_DATA:0] w_xtid_instr;
     wire [`HBIT_DATA:0] w_idex_instr;
     wire [`HBIT_DATA:0] w_exma_instr;
     wire [`HBIT_DATA:0] w_mamo_instr;
@@ -124,8 +126,19 @@ module diad(
         .iw_mem_data(w_imem_rdata),
         .iw_ia_valid(w_ia_valid),
         .iw_pc      (w_iaif_pc),
-        .ow_pc      (w_ifid_pc),
-        .ow_instr   (w_ifid_instr),
+        .ow_pc      (w_ifxt_pc),
+        .ow_instr   (w_ifxt_instr),
+        .iw_flush   (w_branch_taken),
+        .iw_stall   (w_stall)
+    );
+
+    stg_xt u_stg_xt(
+        .iw_clk     (iw_clk),
+        .iw_rst     (iw_rst),
+        .iw_pc      (w_ifxt_pc),
+        .ow_pc      (w_xtid_pc),
+        .iw_instr   (w_ifxt_instr),
+        .ow_instr   (w_xtid_instr),
         .iw_flush   (w_branch_taken),
         .iw_stall   (w_stall)
     );
@@ -148,9 +161,9 @@ module diad(
     stg_id u_stg_id(
         .iw_clk       (iw_clk),
         .iw_rst       (iw_rst),
-        .iw_pc        (w_ifid_pc),
+        .iw_pc        (w_xtid_pc),
         .ow_pc        (w_idex_pc),
-        .iw_instr     (w_ifid_instr),
+        .iw_instr     (w_xtid_instr),
         .ow_instr     (w_idex_instr),
         .ow_opc       (w_opc),
         .ow_sgn_en    (w_sgn_en),

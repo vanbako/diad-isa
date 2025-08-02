@@ -1,9 +1,9 @@
 #!/bin/bash
 tests=(
-  "MOVu 15"
-  "ADDu 15"
-  "SUBu 13"
-  "LDu 20"
+  "MOVu 16"
+  "ADDu 16"
+  "SUBu 14"
+  "LDu 21"
   "subr1 120"
   "subr2 180"
 )
