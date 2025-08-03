@@ -24,7 +24,7 @@ Memory initialisation is with a bootloader at runtime
 [11-8]  SRC source special register (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
 [11-0]  IMM immediate value (12 bit) (goes to upper 12 bits of IR with the LUI instruction, lower 12 bits for all other instructions)
 [7-0]   IMMsr immediate value (8 bit) (lower 8 bits for SRJCC instruction)
-[14-0]  Register bits for PUSH and POP instructions
+[15-0]  Register bits for PUSH and POP instructions
 unused for the instruction:
 [x-y]   RSV reserved, must be all 0 (for the moment not checked, a check must be implemented when implementing interrupts where it should generate an illegal instruction interrupt if RSV bits are not 0)
 
