@@ -150,6 +150,7 @@ module diad(
     wire [`HBIT_IMMSR:0]  w_immsr_val;
     wire [`HBIT_CC:0]     w_cc;
     wire                  w_has_src_gp;
+    wire                  w_has_tgt_gp;
     wire [`HBIT_TGT_GP:0] w_tgt_gp;
     wire                  w_tgt_gp_we;
     wire                  w_has_src_sr;
@@ -172,6 +173,7 @@ module diad(
         .ow_immsr_val (w_immsr_val),
         .ow_cc        (w_cc),
         .ow_has_src_gp(w_has_src_gp),
+        .ow_has_tgt_gp(w_has_tgt_gp),
         .ow_tgt_gp    (w_tgt_gp),
         .ow_tgt_gp_we (w_tgt_gp_we),
         .ow_has_src_sr(w_has_src_sr),
@@ -251,6 +253,11 @@ module diad(
         .iw_clk           (iw_clk),
         .iw_rst           (iw_rst),
         .iw_idex_opc      (w_opc),
+        .iw_has_src_gp    (w_has_src_gp),
+        .iw_src_gp        (w_src_gp),
+        .iw_has_tgt_gp    (w_has_tgt_gp),
+        .iw_tgt_gp        (w_tgt_gp),
+        .iw_tgt_gp_we     (w_tgt_gp_we),
         .ow_stall         (w_stall)
     );
 

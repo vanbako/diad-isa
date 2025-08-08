@@ -15,6 +15,7 @@ module stg_id(
     output wire [`HBIT_IMMSR:0]  ow_immsr_val,
     output wire [`HBIT_CC:0]     ow_cc,
     output wire                  ow_has_src_gp,
+    output wire                  ow_has_tgt_gp,
     output wire [`HBIT_TGT_GP:0] ow_tgt_gp,
     output wire                  ow_tgt_gp_we,
     output wire                  ow_has_src_sr,
@@ -111,6 +112,7 @@ module stg_id(
     reg [`HBIT_IMMSR:0]  r_immsr_val_latch;
     reg [`HBIT_CC:0]     r_cc_latch;
     reg                  r_has_src_gp_latch;
+    reg                  r_has_tgt_gp_latch;
     reg [`HBIT_TGT_GP:0] r_tgt_gp_latch;
     reg                  r_tgt_gp_we_latch;
     reg                  r_has_src_sr_latch;
@@ -130,6 +132,7 @@ module stg_id(
             r_immsr_val_latch  <= `SIZE_IMMSR'b0;
             r_cc_latch         <= `SIZE_CC'b0;
             r_has_src_gp_latch <= 1'b0;
+            r_has_tgt_gp_latch <= 1'b0;
             r_tgt_gp_latch     <= `SIZE_TGT_GP'b0;
             r_tgt_gp_we_latch  <= 1'b0;
             r_has_src_sr_latch <= 1'b0;
@@ -147,6 +150,7 @@ module stg_id(
             r_immsr_val_latch  <= `SIZE_IMMSR'b0;
             r_cc_latch         <= `SIZE_CC'b0;
             r_has_src_gp_latch <= 1'b0;
+            r_has_tgt_gp_latch <= 1'b0;
             r_tgt_gp_latch     <= `SIZE_TGT_GP'b0;
             r_tgt_gp_we_latch  <= 1'b0;
             r_has_src_sr_latch <= 1'b0;
@@ -164,6 +168,7 @@ module stg_id(
             r_immsr_val_latch  <= r_immsr_val_latch;
             r_cc_latch         <= r_cc_latch;
             r_has_src_gp_latch <= r_has_src_gp_latch;
+            r_has_tgt_gp_latch <= r_has_tgt_gp_latch;
             r_tgt_gp_latch     <= r_tgt_gp_latch;
             r_tgt_gp_we_latch  <= r_tgt_gp_we_latch;
             r_has_src_sr_latch <= r_has_src_sr_latch;
@@ -181,6 +186,7 @@ module stg_id(
             r_immsr_val_latch  <= w_immsr_val;
             r_cc_latch         <= w_cc;
             r_has_src_gp_latch <= w_has_src_gp;
+            r_has_tgt_gp_latch <= w_has_tgt_gp;
             r_tgt_gp_latch     <= w_tgt_gp;
             r_tgt_gp_we_latch  <= w_tgt_gp_we;
             r_has_src_sr_latch <= w_has_src_sr;
@@ -200,6 +206,7 @@ module stg_id(
     assign ow_immsr_val  = r_immsr_val_latch;
     assign ow_cc         = r_cc_latch;
     assign ow_has_src_gp = r_has_src_gp_latch;
+    assign ow_has_tgt_gp = r_has_tgt_gp_latch;
     assign ow_tgt_gp     = r_tgt_gp_latch;
     assign ow_tgt_gp_we  = r_tgt_gp_we_latch;
     assign ow_has_src_sr = r_has_src_sr_latch;
