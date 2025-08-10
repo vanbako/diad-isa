@@ -131,24 +131,65 @@
 `define OPC_ISA_RET     8'h56
 `define SUBOP_ISA_RET   4'h6
 
-function automatic [`HBIT_DATA:0] pack_instr;
-    input [`HBIT_OPCLASS:0] i_opclass;
-    input [`HBIT_SUBOP:0]   i_subop;
-    input [`HBIT_TGT_GP:0]  i_tgt;
-    input [`HBIT_SRC_GP:0]  i_src;
-    input [`HBIT_IMM12:0]   i_imm12;
-    input [`HBIT_IMM8:0]    i_imm8;
-    reg   [`HBIT_DATA:0]    r_instr;
-begin
-    r_instr                                          = {`SIZE_DATA{1'b0}};
-    r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
-    r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
-    r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
-    r_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]   = i_src;
-    r_instr[`HBIT_INSTR_IMM12:`LBIT_INSTR_IMM12]     = i_imm12;
-    r_instr[`HBIT_INSTR_IMM8:`LBIT_INSTR_IMM8]       = i_imm8;
-    pack_instr = r_instr;
-end endfunction
+// function automatic [`HBIT_DATA:0] pack_instr_tgt;
+//     input [`HBIT_OPCLASS:0] i_opclass;
+//     input [`HBIT_SUBOP:0]   i_subop;
+//     input [`HBIT_TGT_GP:0]  i_tgt;
+//     reg   [`HBIT_DATA:0]    r_instr;
+// begin
+//     r_instr                                          = {`SIZE_DATA{1'b0}};
+//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
+//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
+//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
+//     pack_instr = r_instr;
+// end endfunction
+
+// function automatic [`HBIT_DATA:0] pack_instr_src;
+//     input [`HBIT_OPCLASS:0] i_opclass;
+//     input [`HBIT_SUBOP:0]   i_subop;
+//     input [`HBIT_TGT_GP:0]  i_tgt;
+//     input [`HBIT_SRC_GP:0]  i_src;
+//     reg   [`HBIT_DATA:0]    r_instr;
+// begin
+//     r_instr                                          = {`SIZE_DATA{1'b0}};
+//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
+//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
+//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
+//     r_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]   = i_src;
+//     pack_instr = r_instr;
+// end endfunction
+
+// function automatic [`HBIT_DATA:0] pack_instr_imm12;
+//     input [`HBIT_OPCLASS:0] i_opclass;
+//     input [`HBIT_SUBOP:0]   i_subop;
+//     input [`HBIT_TGT_GP:0]  i_tgt;
+//     input [`HBIT_IMM12:0]   i_imm12;
+//     reg   [`HBIT_DATA:0]    r_instr;
+// begin
+//     r_instr                                          = {`SIZE_DATA{1'b0}};
+//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
+//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
+//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
+//     r_instr[`HBIT_INSTR_IMM12:`LBIT_INSTR_IMM12]     = i_imm12;
+//     pack_instr = r_instr;
+// end endfunction
+
+// function automatic [`HBIT_DATA:0] pack_instr_imm8;
+//     input [`HBIT_OPCLASS:0] i_opclass;
+//     input [`HBIT_SUBOP:0]   i_subop;
+//     input [`HBIT_TGT_GP:0]  i_tgt;
+//     input [`HBIT_SRC_GP:0]  i_src;
+//     input [`HBIT_IMM8:0]    i_imm8;
+//     reg   [`HBIT_DATA:0]    r_instr;
+// begin
+//     r_instr                                          = {`SIZE_DATA{1'b0}};
+//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
+//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
+//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
+//     r_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]   = i_src;
+//     r_instr[`HBIT_INSTR_IMM8:`LBIT_INSTR_IMM8]       = i_imm8;
+//     pack_instr = r_instr;
+// end endfunction
 
 function automatic [79:0] opc2str;
     input [`HBIT_OPC:0] opc;

@@ -11,6 +11,8 @@ module stg_xt(
     input wire                 iw_flush,
     input wire                 iw_stall
 );
+    // localparam int MAX_SEQ = 4;
+
     wire [`HBIT_OPC:0]     w_opc       = iw_instr[`HBIT_INSTR_OPC:`LBIT_INSTR_OPC];
     wire [`HBIT_OPCLASS:0] w_opclass   = iw_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS];
     wire [`HBIT_SUBOP:0]   w_subop     = iw_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP];
@@ -21,41 +23,67 @@ module stg_xt(
     wire [`HBIT_TGT_SR:0]  w_tgt_sr    = iw_instr[`HBIT_INSTR_TGT_SR:`LBIT_INSTR_TGT_SR];
     wire [`HBIT_SRC_GP:0]  w_src_gp    = iw_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP];
     wire [`HBIT_SRC_SR:0]  w_src_sr    = iw_instr[`HBIT_INSTR_SRC_SR:`LBIT_INSTR_SRC_SR];
+    // wire                   w_is_isa    = (w_opclass == `OPCLASS_ISA);
 
-    reg [`HBIT_ADDR:0] w_pc;
-    reg [`HBIT_DATA:0] w_instr;
+    // reg [3:0]          r_n_cnt;
+    // reg [`HBIT_DATA:0] r_n_instr_list [0:MAX_SEQ-1];
+    reg [`HBIT_ADDR:0] r_pc;
+    reg [`HBIT_DATA:0] r_instr;
     always @(*) begin
-        if ((w_opclass == `OPCLASS_RU) ||
-            (w_opclass == `OPCLASS_RS) ||
-            (w_opclass == `OPCLASS_IU) ||
-            (w_opclass == `OPCLASS_IS))
-        begin
-            w_pc    = iw_pc;
-            w_instr = iw_instr;
-        end else if (w_opclass == `OPCLASS_SR) begin
-            w_pc    = iw_pc;
-            // w_instr = `SIZE_DATA'b0;
-            w_instr = iw_instr;
-        end else if (w_opclass == `OPCLASS_ISA) begin
-            w_pc    = iw_pc;
-            w_instr = iw_instr;
-            case (w_subop)
-                `SUBOP_ISA_PUSH: w_instr = `SIZE_DATA'b0;
-                `SUBOP_ISA_POP:  w_instr = `SIZE_DATA'b0;
-                `SUBOP_ISA_JSR:  w_instr = `SIZE_DATA'b0;
-                `SUBOP_ISA_JSRi: w_instr = `SIZE_DATA'b0;
-                `SUBOP_ISA_BSR:  w_instr = `SIZE_DATA'b0;
-                `SUBOP_ISA_BSRi: w_instr = `SIZE_DATA'b0;
-                `SUBOP_ISA_RET:  w_instr = `SIZE_DATA'b0;
-                default:         w_instr = `SIZE_DATA'b0;
-            endcase
-        end else begin
-            w_pc    = iw_pc;
-            w_instr = `SIZE_DATA'b0;
-        end
+        case (w_opclass)
+            `OPCLASS_RU, `OPCLASS_RS, `OPCLASS_IU, `OPCLASS_IS: begin
+                r_pc    = iw_pc;
+                r_instr = iw_instr;
+            end
+            `OPCLASS_SR: begin
+                r_pc    = iw_pc;
+                // r_instr = `SIZE_DATA'b0;
+                r_instr = iw_instr;
+            end
+            `OPCLASS_ISA: begin
+                r_pc    = iw_pc;
+                r_instr = iw_instr;
+                case (w_subop)
+                    // `SUBOP_ISA_PUSH: begin
+                    //     r_n_cnt = 2;
+                    //     r_n_instr_list[0] = pack_instr_imm12(`OPC_IS_SUBis, w_tgt_gp, 12'd1);
+                    //     r_n_instr_list[1] = pack_instr_src(`OPC_RU_STu, w_tgt_gp, w_src_gp);
+                    // end
+                    // `SUBOP_ISA_POP: begin
+                    //     r_n_cnt = 2;
+                    //     r_n_instr_list[0] = pack_instr_tgt(`OPC_RU_LDu, w_tgt_gp, w_src_gp);
+                    //     r_n_instr_list[1] = pack_instr_imm12(`OPC_IS_ADDis, w_src_gp, 12'd1);
+                    // end
+                    `SUBOP_ISA_PUSH: r_instr = `SIZE_DATA'b0;
+                    `SUBOP_ISA_POP:  r_instr = `SIZE_DATA'b0;
+                    `SUBOP_ISA_JSR:  r_instr = `SIZE_DATA'b0;
+                    `SUBOP_ISA_JSRi: r_instr = `SIZE_DATA'b0;
+                    `SUBOP_ISA_BSR:  r_instr = `SIZE_DATA'b0;
+                    `SUBOP_ISA_BSRi: r_instr = `SIZE_DATA'b0;
+                    `SUBOP_ISA_RET:  r_instr = `SIZE_DATA'b0;
+                    // `SUBOP_ISA_RET:  begin
+                    //     r_n_cnt = 1;
+                    //     r_n_instr_list[0] = pack_instr_tgt(`OPC_RU_LDu, w_tgt_gp, w_src_gp);
+                    // end
+                    default:         r_instr = `SIZE_DATA'b0;
+                endcase
+            end
+            default: begin
+                r_pc    = iw_pc;
+                r_instr = `SIZE_DATA'b0;
+            end
+        endcase
     end
+
+    // reg                r_busy;
+    // reg [3:0]          r_idx;
+    // reg [3:0]          r_cnt;
+    // reg [`HBIT_DATA:0] r_instr_list [0:MAX_SEQ-1];
+    // reg [`HBIT_ADDR:0] r_pc_hold;
+
     reg [`HBIT_ADDR:0] r_pc_latch;
     reg [`HBIT_DATA:0] r_instr_latch;
+
     always @(posedge iw_clk or posedge iw_rst) begin
         if (iw_flush) begin
             r_pc_latch    <= `SIZE_ADDR'b0;
@@ -64,8 +92,8 @@ module stg_xt(
             r_pc_latch    <= r_pc_latch;
             r_instr_latch <= r_instr_latch;
         end else begin
-            r_pc_latch    <= w_pc;
-            r_instr_latch <= w_instr;
+            r_pc_latch    <= r_pc;
+            r_instr_latch <= r_instr;
         end
     end
     assign ow_pc    = r_pc_latch;

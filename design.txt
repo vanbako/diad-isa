@@ -187,8 +187,8 @@ STi #imm, (Rt) (store full immediate to data memory at address in Rt)
 STis #imm, (Rt) (store signed sign-extended 12 bit immediate to data memory at address in Rt)
 
 - instructions translated to microarchitecture instructions
-PUSH Rx, Ry, ... (push registers onto stack, SP is R15, implemented as: ST Rx, (R15) ; SUBi #1, R15)
-POP  Rx, Ry, ... (pop registers from stack, SP is R15, implemented as: LD (R15), Rx ; ADDi #1, R15)
+PUSH Rx, Ry, ... (push registers onto stack, SP is R15, implemented as: ST Rx, (R15) ; SUBis #1, R15)
+POP  Rx, Ry, ... (pop registers from stack, SP is R15, implemented as: LD (R15), Rx ; ADDis #1, R15)
 JSR Rs (SRST LR, (SSP) ; SRSUBis #1, SSP ; SRMOV PC, LR ; JRA Rs)
 JSRi #imm (SRST LR, (SSP) ; SRSUBis #1, SSP ; SRMOV PC, LR ; JRAi #imm)
 BSRs Rs (SRST LR, (SSP) ; SRSUBis #1, SSP ; SRMOV PC, LR ; BRAs Rs)
