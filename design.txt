@@ -5,33 +5,37 @@ Toolchain is currently iverilog
 
 - Details
 Board: OrangeCrab or ULX3S
-instructions, all memories, (GP) general purpose registers, (SSP) shadow stack pointer, (LR) link register, (PC) program counter, (IR) immediate register are diad (24 bit) in size
-floating points are not needed yet. They are for future extension
+instructions, all memories, (GP) general purpose registers are diad (24 bit) in size
+(SSP) shadow stack pointer, (LR) link register, (PC) program counter, (IR) immediate register are tetrad (48 bit) in size
+memories are 24 bit addressable (not byte-addressable!)
+integer & floating points math is not needed yet. They are for future extension
 no branch prediction (keep spectres away), no out-of-order nor speculative execution (no meltdown), no interrupts, no exceptions, no cache, no TLB, no MMU
-Use handshake signals (like ready/valid) between stages to allow stages to indicate when they can accept new data.
-No multi-cycle instructions like mul, div and mod (will be for coprocessor later)
+Use handshake signals between stages to allow stages to indicate when they can accept new data.
+No multi-cycle instructions
 Each stage has its own local hazard or control logic that communicates with adjacent stages.
 Use the built-in synchronous Block RAM (BRAM) for both instruction and data memories (will be caches later), single-ported. Make sure to use a one-clock delay (fetch & mem stages)
-Memory initialisation is with a bootloader at runtime
+Memory initialisation is with a bootloader at runtime (now as initialized with a memory file for testing)
 
 - Instruction format
 24 bit (diad) total, only those needed for the instruction are coded
 [23-16] OPC opcode
 [15-12] CC jump/branch condition code (0 = RA, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE)
-[15-12] TGT target general purpose register (16x GP)
-[15-12] TGT target special register (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
-[11-8]  SRC source general purpose register (16x GP)
-[11-8]  SRC source special register (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
-[11-0]  IMM immediate value (12 bit) (goes to upper 12 bits of IR with the LUI instruction, lower 12 bits for all other instructions)
-[7-0]   IMMsr immediate value (8 bit) (lower 8 bits for SRJCC instruction)
-[15-0]  Register bits for PUSH and POP instructions
+[15-12] TGT target 24 bit data register (16x DR)
+[15-12] TGT target 48 bit address register (4x AR)
+[15-12] TGT target 48 bit special register (4x SR) (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
+[11-8]  SRC source 24 bit data register (16x DR)
+[11-8]  SRC source 48 bit address register (4x AR)
+[11-8]  SRC source 48 bit special register (4x SR) (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
+[11-0]  IMM12 immediate value (12 bit) (goes to upper 12 bits of IR with the LUI instruction, lower 12 bits for all other instructions)
+[7-0]   IMM8 immediate value (8 bit) (lower 8 bits for some instruction)
+[15-0]  Register bits for PUSHM and POPM instructions
 unused for the instruction:
 [x-y]   RSV reserved, must be all 0 (for the moment not checked, a check must be implemented when implementing interrupts where it should generate an illegal instruction interrupt if RSV bits are not 0)
 
-Both general purpose and special registers use the same bits in the instruction format
-Regular instructions use general purpose registers, special instructions (SRMOV, SRBCC) use special registers. This will be handled in the decode stage.
+Both data, address and special registers use the same bits in the instruction format
+Regular instructions use data registers, address instructions use address registers and special instructions (SRMOV, SRBCC) use special registers. This will be handled in the decode stage.
 
-Branch condition codes use some of the same bits as TGT, as TGT is not used in branching. This will be handled in the decode stage.
+Branch condition codes use some of the same bits as SRC, as SRC is not used in branching. This will be handled in the decode stage.
 
 i after the instruction means immediate value (upper from IR and lower from IMM)
 s after the instruction means signed operation
@@ -41,51 +45,64 @@ In the assembly language, first operand is source, second operand is target.
 
 The move full immediate below is used as the upper immediate from IR and the lower immediate from the instruction IMM.
 
-NOP (no operation)
-HLT (halt)
-LUI #imm (load upper immediate)
-MOV Rs, Rt (move)
-MOVi #imm, Rt (move full immediate)
-ADD Rs, Rt (add)
-ADDi #imm, Rt (add full immediate)
-ADDs Rs, Rt	(add signed)
-ADDis #imm, Rt (add sign-extended 12 bit immediate signed)
-SUB Rs, Rt (subtract)
-SUBi #imm, Rt (subtract full immediate)
-SUBs Rs, Rt	(subtract signed)
-SUBis #imm, Rt (subtract sign-extended 12 bit immediate)
-NOT Rt (bitwise not)
-AND Rs, Rt (bitwise and)
-ANDi #imm, Rt (bitwise and full immediate)
-OR Rs, Rt (bitwise or)
-ORi #imm, Rt (bitwise or full immediate)
-XOR Rs, Rt (bitwise xor)
-XORi #imm, Rt (bitwise xor full immediate)
-SHL Rs, Rt (shift left)
-SHLi #imm, Rt (shift left immediate, only lower 5 bits of the immediate are used)
-SHR Rs, Rt (shift right)
-SHRi #imm, Rt (shift right immediate, only lower 5 bits of the immediate are used)
-SHRs Rs, Rt (shift right signed)
-SHRis #imm, Rt (shift right signed immediate, only lower 5 bits of the immediate are used)
-CMP Rs, Rt (compare)
-CMPi #imm, Rt (compare full immediate)
-CMPs Rs, Rt (compare signed)
-CMPis #imm, Rt (compare signed sign-extended 12 bit immediate)
-JCC Rs (jump condition code, absolute address) (jump if condition is met)
-JCCi #imm (jump condition code full immediate, absolute address) (jump if condition is met)
-BCCs Rs (branch condition code, relative to pc) (branch if condition is met)
-BCCis #imm (branch condition code immediate signed, relative to pc only lower 12 bits of immediate) (branch if condition is met)
-LD (Rs), Rt (load from data memory)
-ST Rs, (Rt) (store Rs to data memory at address in Rt)
-STi #imm, (Rt) (store full immediate to data memory at address in Rt)
-STis #imm, (Rt) (store signed sign-extended 12 bit immediate to data memory at address in Rt)
-SRMOV PC, LR (store pc in link register)
-SRJCC LR+#imm (jump condition code to link register with immediate, only lower 8 bits of immediate are used) (jump if condition is met)
-SRADDis #imm, SSP (add sign-extended 12 bit immediate to shadow stack pointer)
-SRSUBis #imm, SSP (subtract sign-extended 12 bit immediate from shadow stack pointer)
-SRST LR, (SSP) (store link register to shadow stack pointer address)
-SRLD (SSP), St (load special temp from shadow stack pointer address)
-SRCMP St, LR (compare special temp with link register)
+NOP                      (no operation)
+
+MOVur    DRs, DRt        (move DR)
+MCCur    DRs, DRt        (move DR when condition)
+ADDur    DRs, DRt        (add DR)
+SUBur    DRs, DRt        (subtract DR)
+NOTur    DRt             (bitwise not)
+ANDur    DRs, DRt        (bitwise and)
+ORur     DRs, DRt        (bitwise or)
+XORur    DRs, DRt        (bitwise xor)
+SHLur    DRs, DRt        (shift left)
+SHRur    DRs, DRt        (shift right)
+CMPur    DRs, DRt        (compare)
+BCCur    ARt             (jump condition code, absolute address) (jump if condition is met)
+LDur     (ARs), DRt      (load from data memory at address in ARs)
+STur     DRs, (ARt)      (store DRs to data memory at address in ARt)
+
+LUIui    #imm12          (load upper immediate)
+MOVui    #imm12, DRt     (move full immediate)
+ADDui    #imm12, DRt     (add full immediate)
+SUBui    #imm12, DRt     (subtract full immediate)
+ANDui    #imm12, DRt     (bitwise and full immediate)
+ORui     #imm12, DRt     (bitwise or full immediate)
+XORui    #imm12, DRt     (bitwise xor full immediate)
+SHLui    #imm12, DRt     (shift left immediate, only lower 5 bits of the immediate are used)
+SHRui    #imm12, DRt     (shift right immediate, only lower 5 bits of the immediate are used)
+RORui    #imm12, DRt     (rotate right immediate, only lower 5 bits of the immediate are used)
+CMPui    #imm12, DRt     (compare full immediate)
+BCCui    #imm12          (jump condition code full immediate, absolute address) (jump if condition is met)
+STui     #imm12, (ARt)   (store full immediate to data memory at address in ARt)
+
+NEGsr    DRt             (negate DR)
+ADDsr    DRs, DRt        (add DR signed)
+SUBsr    DRs, DRt        (subtract DR signed)
+SHRsr    DRs, DRt        (shift right signed)
+CMPsr    DRs, DRt        (compare signed)
+BCCsr    DRs             (branch condition code, relative to pc) (branch if condition is met)
+
+MOVsi    #imm12, DRt     (move sign-extended 12 bit immediate signed)
+ADDsi    #imm12, DRt     (add sign-extended 12 bit immediate signed)
+SUBsi    #imm12, DRt     (subtract sign-extended 12 bit immediate)
+SHRsi    #imm12, DRt     (shift right signed immediate, only lower 5 bits of the immediate are used)
+CMPsi    #imm12, DRt     (compare signed sign-extended 12 bit immediate)
+BCCsi    #imm12          (branch condition code immediate signed, relative to pc only lower 12 bits of immediate) (branch if condition is met)
+STsi     #imm12, (ARt)   (store signed sign-extended 12 bit immediate to data memory at address in ARt)
+
+MCCos    #imm8, DRt      (move sext imm8 to data register when CC condition)
+LDos     #imm8(ARs), DRt (load from data memory at address in ARs)
+STos     DRs, #imm8(ARt) (store DRs to data memory at address in ARt)
+
+SRHLT                    (halt)
+SRMOVur  SRs, SRt        (move SR)
+SRJCCios ARt+#imm8       (jump condition code to special register with immediate, only lower 8 bits of immediate are used) (jump if condition is met)
+SRADDsi  #imm12, SRt     (add sign-extended 12 bit immediate to special register)
+SRSUBsi  #imm12, SRt     (subtract sign-extended 12 bit immediate from special register)
+SRSTios  SRs, #imm8(SRt) (store special register to special register address)
+SRLDios  #imm8(SRs), SRt (load from special register address into special register)
+SRCMPur  SRs, SRt        (compare special registers)
 
 - Pipeline Stages
 1. IA/IF: Instruction Address & Fetch
