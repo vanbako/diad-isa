@@ -19,14 +19,15 @@ Memory initialisation is with a bootloader at runtime (now as initialized with a
 - Instruction format
 24 bit (diad) total, only those needed for the instruction are coded
 [23-16] OPC opcode
-[15-12] CC jump/branch condition code (0 = RA, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE)
+[15-12] CC jump/branch condition code (0 = RA, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE, 7 = BT, 8 = AT, 9 = BE, A = AE)
 [15-12] TGT target 24 bit data register (16x DR)
-[15-12] TGT target 48 bit address register (4x AR)
-[15-12] TGT target 48 bit special register (4x SR) (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
+[15-14] TGT target 48 bit address register (4x AR)
+[15-14] TGT target 48 bit special register (4x SR) (0 = LR, 1 = ST, 2 = SSP, 3 = PC)
 [11-8]  SRC source 24 bit data register (16x DR)
-[11-8]  SRC source 48 bit address register (4x AR)
-[11-8]  SRC source 48 bit special register (4x SR) (0 = FL, 1 = LR, 2 = St, 3 = SSP, f = PC)
+[13-12] or [11-10] SRC source 48 bit address register (4x AR)
+[13-12] or [11-10] SRC source 48 bit special register (4x SR) (0 = LR, 1 = ST, 2 = SSP, 3 = PC)
 [11-0]  IMM12 immediate value (12 bit) (goes to upper 12 bits of IR with the LUI instruction, lower 12 bits for all other instructions)
+[9-0]   IMM10 immediate value (10 bit) (lower 10 bits for some instruction)
 [7-0]   IMM8 immediate value (8 bit) (lower 8 bits for some instruction)
 [15-0]  Register bits for PUSHM and POPM instructions
 unused for the instruction:
@@ -37,91 +38,97 @@ Regular instructions use data registers, address instructions use address regist
 
 Branch condition codes use some of the same bits as SRC, as SRC is not used in branching. This will be handled in the decode stage.
 
-i after the instruction means immediate value (upper from IR and lower from IMM)
-s after the instruction means signed operation
-is after the instruction means signed immediate operation (sign extended immediate, only lower 12 bits of immediate are used, upper 12 bits are ignored)
+- Instruction suffixes
+ur: unsigned register operation
+ui: unsigned immediate value (upper from IR and lower from IMM)
+sr: signed register operation
+si: signed immediate operation (sign extended immediate, only lower 12 bits of immediate are used, upper 12 bits are ignored)
+os: signed immediate operation (sign extended immediate, only lower 8 bits of immediate are used, upper 16 bits are ignored)
 
 In the assembly language, first operand is source, second operand is target.
 
-The move full immediate below is used as the upper immediate from IR and the lower immediate from the instruction IMM.
+The move full immediate below is used as the upper immediate from IR and the lower immediate from the instruction imm12.
 
-NOP                      (no operation)
+NOP                       (no operation)
 
-MOVur    DRs, DRt        (move DR)
-MCCur    DRs, DRt        (move DR when condition)
-ADDur    DRs, DRt        (add DR)
-SUBur    DRs, DRt        (subtract DR)
-NOTur    DRt             (bitwise not)
-ANDur    DRs, DRt        (bitwise and)
-ORur     DRs, DRt        (bitwise or)
-XORur    DRs, DRt        (bitwise xor)
-SHLur    DRs, DRt        (shift left)
-SHRur    DRs, DRt        (shift right)
-CMPur    DRs, DRt        (compare)
-BCCur    ARt             (jump condition code, absolute address) (jump if condition is met)
-LDur     (ARs), DRt      (load from data memory at address in ARs)
-STur     DRs, (ARt)      (store DRs to data memory at address in ARt)
+MOVur    DRs, DRt         (move DR)
+MCCur    DRs, DRt         (move DR when condition)
+ADDur    DRs, DRt         (add DR)
+SUBur    DRs, DRt         (subtract DR)
+NOTur    DRt              (bitwise not)
+ANDur    DRs, DRt         (bitwise and)
+ORur     DRs, DRt         (bitwise or)
+XORur    DRs, DRt         (bitwise xor)
+SHLur    DRs, DRt         (shift left)
+SHRur    DRs, DRt         (shift right)
+CMPur    DRs, DRt         (compare)
+BCCur    ARt              (jump condition code, absolute address) (jump if condition is met)
+LDur     (ARs), DRt       (load from data memory at address in ARs)
+STur     DRs, (ARt)       (store DRs to data memory at address in ARt)
 
-LUIui    #imm12          (load upper immediate)
-MOVui    #imm12, DRt     (move full immediate)
-ADDui    #imm12, DRt     (add full immediate)
-SUBui    #imm12, DRt     (subtract full immediate)
-ANDui    #imm12, DRt     (bitwise and full immediate)
-ORui     #imm12, DRt     (bitwise or full immediate)
-XORui    #imm12, DRt     (bitwise xor full immediate)
-SHLui    #imm12, DRt     (shift left immediate, only lower 5 bits of the immediate are used)
-SHRui    #imm12, DRt     (shift right immediate, only lower 5 bits of the immediate are used)
-RORui    #imm12, DRt     (rotate right immediate, only lower 5 bits of the immediate are used)
-CMPui    #imm12, DRt     (compare full immediate)
-BCCui    #imm12          (jump condition code full immediate, absolute address) (jump if condition is met)
-STui     #imm12, (ARt)   (store full immediate to data memory at address in ARt)
+LUIui    #imm12           (load upper immediate)
+MOVui    #imm12, DRt      (move full immediate)
+ADDui    #imm12, DRt      (add full immediate)
+SUBui    #imm12, DRt      (subtract full immediate)
+ANDui    #imm12, DRt      (bitwise and full immediate)
+ORui     #imm12, DRt      (bitwise or full immediate)
+XORui    #imm12, DRt      (bitwise xor full immediate)
+SHLui    #imm12, DRt      (shift left immediate, only lower 5 bits of the immediate are used)
+SHRui    #imm12, DRt      (shift right immediate, only lower 5 bits of the immediate are used)
+RORui    #imm12, DRt      (rotate right immediate, only lower 5 bits of the immediate are used)
+CMPui    #imm12, DRt      (compare full immediate)
+BCCui    #imm12           (jump condition code full immediate, absolute address) (jump if condition is met)
+STui     #imm12, (ARt)    (store full immediate to data memory at address in ARt)
 
-NEGsr    DRt             (negate DR)
-ADDsr    DRs, DRt        (add DR signed)
-SUBsr    DRs, DRt        (subtract DR signed)
-SHRsr    DRs, DRt        (shift right signed)
-CMPsr    DRs, DRt        (compare signed)
-BCCsr    DRs             (branch condition code, relative to pc) (branch if condition is met)
+NEGsr    DRt              (negate DR)
+ADDsr    DRs, DRt         (add DR signed)
+SUBsr    DRs, DRt         (subtract DR signed)
+SHRsr    DRs, DRt         (shift right signed)
+CMPsr    DRs, DRt         (compare signed)
+BCCsr    DRs              (branch condition code, relative to pc) (branch if condition is met)
 
-MOVsi    #imm12, DRt     (move sign-extended 12 bit immediate signed)
-ADDsi    #imm12, DRt     (add sign-extended 12 bit immediate signed)
-SUBsi    #imm12, DRt     (subtract sign-extended 12 bit immediate)
-SHRsi    #imm12, DRt     (shift right signed immediate, only lower 5 bits of the immediate are used)
-CMPsi    #imm12, DRt     (compare signed sign-extended 12 bit immediate)
-BCCsi    #imm12          (branch condition code immediate signed, relative to pc only lower 12 bits of immediate) (branch if condition is met)
-STsi     #imm12, (ARt)   (store signed sign-extended 12 bit immediate to data memory at address in ARt)
+MOVsi    #imm12, DRt      (move sign-extended 12 bit immediate signed)
+ADDsi    #imm12, DRt      (add sign-extended 12 bit immediate signed)
+SUBsi    #imm12, DRt      (subtract sign-extended 12 bit immediate)
+SHRsi    #imm12, DRt      (shift right signed immediate, only lower 5 bits of the immediate are used)
+CMPsi    #imm12, DRt      (compare signed sign-extended 12 bit immediate)
+BCCsi    #imm12           (branch condition code immediate signed, relative to pc only lower 12 bits of immediate) (branch if condition is met)
+STsi     #imm12, (ARt)    (store signed sign-extended 12 bit immediate to data memory at address in ARt)
 
-MCCos    #imm8, DRt      (move sext imm8 to data register when CC condition)
-LDos     #imm8(ARs), DRt (load from data memory at address in ARs)
-STos     DRs, #imm8(ARt) (store DRs to data memory at address in ARt)
+MCCso    #imm8, DRt       (move sext imm8 to data register when CC condition)
+LDso     #imm10(ARs), DRt (load from data memory at address in ARs)
+STso     DRs, #imm10(ARt) (store DRs to data memory at address in ARt)
 
-MOVAur   DRs, ARt        (move DR to AR, zero extend)
-MOVAsr   DRs, ARt        (move DR to AR, sign extend)
-MOVALur  ARs, DRt        (move AR to DR, low 24 bit)
-MOVAHur  ARs, DRt        (move AR to DR, high 24 bit)
-ADDAur   DRs, ARt        (add DR to AR, zero extend)
-ADDAsr   DRs, ARt        (add DR to AR, sign extend)
-SUBAur   DRs, ARt        (subtract DR from AR, zero extend)
-SUBAsr   DRs, ARt        (subtract DR from AR, sign extend)
-ADDAsi   #imm12, ARt     (add sign-extended 12 bit immediate to AR)
-SUBAsi   #imm12, ARt     (subtract sign-extended 12 bit immediate from AR)
-CMPAur   ARs, ARt		 (compare AR, unsigned)
+LEAso    #imm12(ARs), ARt (load effective address, ARt = ARs + sext(imm12))
+ADRAso   #imm12(PC), ARt  (Address relative to PC, ARt = PC + sext(imm12))
+MOVAur   DRs, ARt         (move DR to AR, zero extend)
+MOVAsr   DRs, ARt         (move DR to AR, sign extend)
+MOVALur  ARs, DRt         (move AR to DR, low 24 bit)
+MOVAHur  ARs, DRt         (move AR to DR, high 24 bit)
+ADDAur   DRs, ARt         (add DR to AR, zero extend)
+ADDAsr   DRs, ARt         (add DR to AR, sign extend)
+SUBAur   DRs, ARt         (subtract DR from AR, zero extend)
+SUBAsr   DRs, ARt         (subtract DR from AR, sign extend)
+ADDAsi   #imm12, ARt      (add sign-extended 12 bit immediate to AR)
+SUBAsi   #imm12, ARt      (subtract sign-extended 12 bit immediate from AR)
+CMPAur   ARs, ARt		  (compare AR, unsigned)
 
-SRHLT                    (halt)
-SRMOVur  SRs, SRt        (move SR)
-SRJCCios ARt+#imm8       (jump condition code to special register with immediate, only lower 8 bits of immediate are used) (jump if condition is met)
-SRADDsi  #imm12, SRt     (add sign-extended 12 bit immediate to special register)
-SRSUBsi  #imm12, SRt     (subtract sign-extended 12 bit immediate from special register)
-SRSTios  SRs, #imm8(SRt) (store special register to special register address)
-SRLDios  #imm8(SRs), SRt (load from special register address into special register)
-SRCMPur  SRs, SRt        (compare special registers)
+SRHLT                     (halt)
+SRMOVur  SRs, SRt         (move SR)
+SRJCCios ARt+#imm10       (jump condition code to special register with immediate, only lower 10 bits of immediate are used) (jump if condition is met)
+SRADDsi  #imm12, SRt      (add sign-extended 12 bit immediate to special register)
+SRSUBsi  #imm12, SRt      (subtract sign-extended 12 bit immediate from special register)
+SRSTios  SRs, #imm12(SRt) (store special register to special register address)
+SRLDios  #imm12(SRs), SRt (load from special register address into special register)
+SRCMPur  SRs, SRt         (compare special registers)
 
 - Pipeline Stages
 1. IA/IF: Instruction Address & Fetch
 2. ID:    Instruction Decode
-3. EX:    Execute
-4. MA/MO: Memory Address & Operation
-5. WB:    Register Write Back
+3. XT:    Translate
+4. EX:    Execute
+5. MA/MO: Memory Address & Operation
+6. WB:    Register Write Back
 
 - General purpose registers
 0-15 Rx : general purpose
