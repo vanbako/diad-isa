@@ -11,32 +11,43 @@ module stg_xt(
     input wire                 iw_flush,
     input wire                 iw_stall
 );
+    wire [`HBIT_OPC:0]     w_opc       = iw_instr[`HBIT_INSTR_OPC:`LBIT_INSTR_OPC];
+    wire [`HBIT_OPCLASS:0] w_opclass   = iw_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS];
+    wire [`HBIT_SUBOP:0]   w_subop     = iw_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP];
+    wire [`HBIT_IMM12:0]   w_imm12_val = iw_instr[`HBIT_INSTR_IMM12:`LBIT_INSTR_IMM12];
+    wire [`HBIT_IMM8:0]    w_imm8_val  = iw_instr[`HBIT_INSTR_IMM8:`LBIT_INSTR_IMM8];
+    wire [`HBIT_CC:0]      w_cc        = iw_instr[`HBIT_INSTR_CC:`LBIT_INSTR_CC];
+    wire [`HBIT_TGT_GP:0]  w_tgt_gp    = iw_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP];
+    wire [`HBIT_TGT_SR:0]  w_tgt_sr    = iw_instr[`HBIT_INSTR_TGT_SR:`LBIT_INSTR_TGT_SR];
+    wire [`HBIT_SRC_GP:0]  w_src_gp    = iw_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP];
+    wire [`HBIT_SRC_SR:0]  w_src_sr    = iw_instr[`HBIT_INSTR_SRC_SR:`LBIT_INSTR_SRC_SR];
+
     reg [`HBIT_ADDR:0] w_pc;
     reg [`HBIT_DATA:0] w_instr;
     always @(*) begin
-        if ((iw_instr[`HBIT_INSTRSET:`LBIT_INSTRSET] == `INSTRSET_RU) ||
-            (iw_instr[`HBIT_INSTRSET:`LBIT_INSTRSET] == `INSTRSET_RS) ||
-            (iw_instr[`HBIT_INSTRSET:`LBIT_INSTRSET] == `INSTRSET_IU) ||
-            (iw_instr[`HBIT_INSTRSET:`LBIT_INSTRSET] == `INSTRSET_IS))
+        if ((w_opclass == `OPCLASS_RU) ||
+            (w_opclass == `OPCLASS_RS) ||
+            (w_opclass == `OPCLASS_IU) ||
+            (w_opclass == `OPCLASS_IS))
         begin
             w_pc    = iw_pc;
             w_instr = iw_instr;
-        end else if (iw_instr[`HBIT_INSTRSET:`LBIT_INSTRSET] == `INSTRSET_SR) begin
+        end else if (w_opclass == `OPCLASS_SR) begin
             w_pc    = iw_pc;
             // w_instr = `SIZE_DATA'b0;
             w_instr = iw_instr;
-        end else if (iw_instr[`HBIT_INSTRSET:`LBIT_INSTRSET] == `INSTRSET_ISA) begin
+        end else if (w_opclass == `OPCLASS_ISA) begin
             w_pc    = iw_pc;
             w_instr = iw_instr;
-            case (iw_instr[`HBIT_INSTR_OPC:`LBIT_INSTR_OPC])
-                `OPC_ISA_PUSH: w_instr = `SIZE_DATA'b0;
-                `OPC_ISA_POP: w_instr = `SIZE_DATA'b0;
-                `OPC_ISA_JSR: w_instr = `SIZE_DATA'b0;
-                `OPC_ISA_JSRi: w_instr = `SIZE_DATA'b0;
-                `OPC_ISA_BSR: w_instr = `SIZE_DATA'b0;
-                `OPC_ISA_BSRi: w_instr = `SIZE_DATA'b0;
-                `OPC_ISA_RET: w_instr = `SIZE_DATA'b0;
-                default: w_instr = `SIZE_DATA'b0;
+            case (w_subop)
+                `SUBOP_ISA_PUSH: w_instr = `SIZE_DATA'b0;
+                `SUBOP_ISA_POP:  w_instr = `SIZE_DATA'b0;
+                `SUBOP_ISA_JSR:  w_instr = `SIZE_DATA'b0;
+                `SUBOP_ISA_JSRi: w_instr = `SIZE_DATA'b0;
+                `SUBOP_ISA_BSR:  w_instr = `SIZE_DATA'b0;
+                `SUBOP_ISA_BSRi: w_instr = `SIZE_DATA'b0;
+                `SUBOP_ISA_RET:  w_instr = `SIZE_DATA'b0;
+                default:         w_instr = `SIZE_DATA'b0;
             endcase
         end else begin
             w_pc    = iw_pc;

@@ -15,8 +15,8 @@ module stg_ex(
     output wire [`HBIT_OPC:0]    ow_opc,
     input wire                   iw_sgn_en,
     input wire                   iw_imm_en,
-    input wire  [`HBIT_IMM:0]    iw_imm_val,
-    input wire  [`HBIT_IMMSR:0]  iw_immsr_val,
+    input wire  [`HBIT_IMM12:0]  iw_imm12_val,
+    input wire  [`HBIT_IMM8:0]   iw_imm8_val,
     input wire  [`HBIT_CC:0]     iw_cc,
     input wire  [`HBIT_TGT_GP:0] iw_tgt_gp,
     input wire                   iw_tgt_gp_we,
@@ -39,28 +39,28 @@ module stg_ex(
     input wire                   iw_flush,
     input wire                   iw_stall
 );
-    reg [`HBIT_IMM:0]  r_ui;
-    reg [`HBIT_DATA:0] r_ir;
-    reg [`HBIT_DATA:0] r_se_imm_val;
-    reg [`HBIT_DATA:0] r_se_immsr_val;
-    reg [`HBIT_ADDR:0] r_addr;
-    reg [`HBIT_DATA:0] r_result;
-    reg [`HBIT_FLAG:0] r_fl;
-    reg                r_branch_taken;
-    reg [`HBIT_ADDR:0] r_branch_pc;
+    reg [`HBIT_IMM12:0] r_ui;
+    reg [`HBIT_DATA:0]  r_ir;
+    reg [`HBIT_DATA:0]  r_se_imm12_val;
+    reg [`HBIT_DATA:0]  r_se_imm8_val;
+    reg [`HBIT_ADDR:0]  r_addr;
+    reg [`HBIT_DATA:0]  r_result;
+    reg [`HBIT_FLAG:0]  r_fl;
+    reg                 r_branch_taken;
+    reg [`HBIT_ADDR:0]  r_branch_pc;
 
     always @* begin
         if (!iw_stall) begin
-        r_branch_taken = 1'b0;
-        r_addr       = {`SIZE_ADDR{1'b0}};
-        r_result     = {`SIZE_DATA{1'b0}};
+            r_branch_taken = 1'b0;
+            r_addr         = {`SIZE_ADDR{1'b0}};
+            r_result       = {`SIZE_DATA{1'b0}};
         end
-        r_ir         = {r_ui, iw_imm_val};
-        r_se_imm_val = {{12{iw_imm_val[`HBIT_IMM]}}, iw_imm_val};
-        r_se_immsr_val = {{16{iw_immsr_val[`HBIT_IMMSR]}}, iw_immsr_val};
+        r_ir           = {r_ui, iw_imm12_val};
+        r_se_imm12_val = {{12{iw_imm12_val[`HBIT_IMM12]}}, iw_imm12_val};
+        r_se_imm8_val  = {{16{iw_imm8_val[`HBIT_IMM8]}}, iw_imm8_val};
         if ((iw_opc == `OPC_RU_JCCu  || iw_opc == `OPC_RS_BCCs  ||
-            iw_opc == `OPC_IU_JCCiu || iw_opc == `OPC_IS_BCCis ||
-            iw_opc == `OPC_SR_SRJCCu)) begin
+             iw_opc == `OPC_IU_JCCiu || iw_opc == `OPC_IS_BCCis ||
+             iw_opc == `OPC_SR_SRJCCu)) begin
             case (iw_cc)
                 `CC_RA: r_branch_taken = 1'b1;
                 `CC_EQ: r_branch_taken =  r_fl[`FLAG_Z];
@@ -77,7 +77,7 @@ module stg_ex(
         end
         case (iw_opc)
             `OPC_RU_LUI: begin
-                r_ui = iw_imm_val;
+                r_ui = iw_imm12_val;
             end
             `OPC_RU_MOVu: begin
                 r_result = iw_src_gp_val;
@@ -243,31 +243,31 @@ module stg_ex(
                 r_result = r_ir;
             end
             `OPC_IS_MOVis: begin
-                r_result = r_se_imm_val;
+                r_result = r_se_imm12_val;
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
             end
             `OPC_IS_ADDis: begin
-                r_result = $signed(iw_tgt_gp_val) + $signed(r_se_imm_val);
+                r_result = $signed(iw_tgt_gp_val) + $signed(r_se_imm12_val);
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_N] = ($signed(r_result) < 0) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_V] =
-                    ((~(iw_tgt_gp_val[`HBIT_DATA-1] ^ r_se_imm_val[`HBIT_DATA-1])) &&
+                    ((~(iw_tgt_gp_val[`HBIT_DATA-1] ^ r_se_imm12_val[`HBIT_DATA-1])) &&
                     (iw_tgt_gp_val[`HBIT_DATA-1] ^ r_result[`HBIT_DATA-1])) ? 1'b1 : 1'b0;
             end
             `OPC_IS_SUBis: begin
-                r_result = $signed(iw_tgt_gp_val) - $signed(r_se_imm_val);
+                r_result = $signed(iw_tgt_gp_val) - $signed(r_se_imm12_val);
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_N] = ($signed(r_result) < 0) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_V] =
-                    ((r_se_imm_val[`HBIT_DATA-1] ^ iw_tgt_gp_val[`HBIT_DATA-1]) &&
+                    ((r_se_imm12_val[`HBIT_DATA-1] ^ iw_tgt_gp_val[`HBIT_DATA-1]) &&
                     (iw_tgt_gp_val[`HBIT_DATA-1] ^ r_result[`HBIT_DATA-1])) ? 1'b1 : 1'b0;
             end
             `OPC_IS_SHRis: begin
-                if (iw_imm_val >= `SIZE_DATA) begin
+                if (iw_imm12_val >= `SIZE_DATA) begin
                     r_result = {`SIZE_DATA{1'b0}};
                     r_fl[`FLAG_V] = 1'b1;
                 end else begin
-                    r_result = $signed(iw_tgt_gp_val) >>> iw_imm_val[4:0];
+                    r_result = $signed(iw_tgt_gp_val) >>> iw_imm12_val[4:0];
                     r_fl[`FLAG_V] = 1'b0;
                 end
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
@@ -275,37 +275,37 @@ module stg_ex(
             end
             `OPC_IS_CMPis: begin
                 reg signed [`HBIT_DATA:0] s_diff;
-                s_diff = $signed(iw_tgt_gp_val) - $signed(r_se_imm_val);
-                r_fl[`FLAG_Z] = (iw_tgt_gp_val == r_se_imm_val) ? 1'b1 : 1'b0;
+                s_diff = $signed(iw_tgt_gp_val) - $signed(r_se_imm12_val);
+                r_fl[`FLAG_Z] = (iw_tgt_gp_val == r_se_imm12_val) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_N] = (s_diff < 0) ? 1'b1 : 1'b0;
-                r_fl[`FLAG_V] = ((iw_tgt_gp_val[`HBIT_DATA] ^ r_se_imm_val[`HBIT_DATA]) &
+                r_fl[`FLAG_V] = ((iw_tgt_gp_val[`HBIT_DATA] ^ r_se_imm12_val[`HBIT_DATA]) &
                                  (iw_tgt_gp_val[`HBIT_DATA] ^ s_diff[`HBIT_DATA]));
             end
             `OPC_IS_BCCis: begin
                 if (r_branch_taken)
-                    r_branch_pc = iw_pc + $signed(r_se_imm_val);
+                    r_branch_pc = iw_pc + $signed(r_se_imm12_val);
             end
             `OPC_IS_STis: begin
                 r_addr = iw_tgt_gp_val;
-                r_result = r_se_imm_val;
+                r_result = r_se_imm12_val;
             end
             `OPC_SR_SRMOVu: begin
                 r_result = (iw_src_sr == `INDEX_PC) ? iw_pc : iw_src_sr_val;
             end
             `OPC_SR_SRADDis: begin
-                r_result = $signed(iw_tgt_sr_val) + $signed(r_se_imm_val);
+                r_result = $signed(iw_tgt_sr_val) + $signed(r_se_imm12_val);
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_N] = ($signed(r_result) < 0) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_V] =
-                    ((~(iw_tgt_sr_val[`HBIT_DATA-1] ^ r_se_imm_val[`HBIT_DATA-1])) &&
+                    ((~(iw_tgt_sr_val[`HBIT_DATA-1] ^ r_se_imm12_val[`HBIT_DATA-1])) &&
                     (iw_tgt_sr_val[`HBIT_DATA-1] ^ r_result[`HBIT_DATA-1])) ? 1'b1 : 1'b0;
             end
             `OPC_SR_SRSUBis: begin
-                r_result = $signed(iw_tgt_sr_val) - $signed(r_se_imm_val);
+                r_result = $signed(iw_tgt_sr_val) - $signed(r_se_imm12_val);
                 r_fl[`FLAG_Z] = (r_result == {`SIZE_DATA{1'b0}}) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_N] = ($signed(r_result) < 0) ? 1'b1 : 1'b0;
                 r_fl[`FLAG_V] =
-                    ((r_se_imm_val[`HBIT_DATA-1] ^ iw_tgt_sr_val[`HBIT_DATA-1]) &&
+                    ((r_se_imm12_val[`HBIT_DATA-1] ^ iw_tgt_sr_val[`HBIT_DATA-1]) &&
                     (iw_tgt_sr_val[`HBIT_DATA-1] ^ r_result[`HBIT_DATA-1])) ? 1'b1 : 1'b0;
             end
             `OPC_SR_SRCMPu: begin
@@ -314,7 +314,7 @@ module stg_ex(
             end
             `OPC_SR_SRJCCu: begin
                 if (r_branch_taken) begin
-                    r_branch_pc = iw_src_sr_val + r_se_immsr_val;
+                    r_branch_pc = iw_src_sr_val + r_se_imm8_val;
                     // $display("SRJCCu: branch_pc=%h", r_branch_pc);
                 end
                 // $display("SRJCCu: branch_pc=%h", r_branch_pc);

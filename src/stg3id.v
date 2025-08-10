@@ -11,8 +11,8 @@ module stg_id(
     output wire [`HBIT_OPC:0]    ow_opc,
     output wire                  ow_sgn_en,
     output wire                  ow_imm_en,
-    output wire [`HBIT_IMM:0]    ow_imm_val,
-    output wire [`HBIT_IMMSR:0]  ow_immsr_val,
+    output wire [`HBIT_IMM12:0]  ow_imm12_val,
+    output wire [`HBIT_IMM8:0]   ow_imm8_val,
     output wire [`HBIT_CC:0]     ow_cc,
     output wire                  ow_has_src_gp,
     output wire [`HBIT_TGT_GP:0] ow_tgt_gp,
@@ -94,8 +94,8 @@ module stg_id(
         (w_opc == `OPC_SR_SRMOVu)   || (w_opc == `OPC_SR_SRCMPu)  ||
         (w_opc == `OPC_SR_SRJCCu)   || (w_opc == `OPC_SR_SRLDu)   ||
         (w_opc == `OPC_SR_SRSTu);
-    wire [`HBIT_IMM:0]    w_imm_val   = w_imm_en ? iw_instr[`HBIT_INSTR_IMM:`LBIT_INSTR_IMM] : `SIZE_IMM'b0;
-    wire [`HBIT_IMMSR:0]  w_immsr_val = (w_opc == `OPC_SR_SRJCCu) ? iw_instr[`HBIT_INSTR_IMMSR:`LBIT_INSTR_IMMSR] : `SIZE_IMMSR'b0;
+    wire [`HBIT_IMM12:0]  w_imm12_val = w_imm_en ? iw_instr[`HBIT_INSTR_IMM12:`LBIT_INSTR_IMM12] : `SIZE_IMM12'b0;
+    wire [`HBIT_IMM8:0]   w_imm8_val  = (w_opc == `OPC_SR_SRJCCu) ? iw_instr[`HBIT_INSTR_IMM8:`LBIT_INSTR_IMM8] : `SIZE_IMM8'b0;
     wire [`HBIT_CC:0]     w_cc        = w_is_branch ? iw_instr[`HBIT_INSTR_CC:`LBIT_INSTR_CC] : `SIZE_CC'b0;
     wire [`HBIT_TGT_GP:0] w_tgt_gp    = w_has_tgt_gp ? iw_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP] : `SIZE_TGT_GP'b0;
     wire [`HBIT_TGT_SR:0] w_tgt_sr    = w_has_tgt_sr ? iw_instr[`HBIT_INSTR_TGT_SR:`LBIT_INSTR_TGT_SR] : `SIZE_TGT_SR'b0;
@@ -107,8 +107,8 @@ module stg_id(
     reg [`HBIT_OPC:0]    r_opc_latch;
     reg                  r_sgn_en_latch;
     reg                  r_imm_en_latch;
-    reg [`HBIT_IMM:0]    r_imm_val_latch;
-    reg [`HBIT_IMMSR:0]  r_immsr_val_latch;
+    reg [`HBIT_IMM12:0]  r_imm12_val_latch;
+    reg [`HBIT_IMM8:0]   r_imm8_val_latch;
     reg [`HBIT_CC:0]     r_cc_latch;
     reg                  r_has_src_gp_latch;
     reg [`HBIT_TGT_GP:0] r_tgt_gp_latch;
@@ -126,8 +126,8 @@ module stg_id(
             r_opc_latch        <= `SIZE_OPC'b0;
             r_sgn_en_latch     <= 1'b0;
             r_imm_en_latch     <= 1'b0;
-            r_imm_val_latch    <= `SIZE_IMM'b0;
-            r_immsr_val_latch  <= `SIZE_IMMSR'b0;
+            r_imm12_val_latch  <= `SIZE_IMM12'b0;
+            r_imm8_val_latch   <= `SIZE_IMM8'b0;
             r_cc_latch         <= `SIZE_CC'b0;
             r_has_src_gp_latch <= 1'b0;
             r_tgt_gp_latch     <= `SIZE_TGT_GP'b0;
@@ -143,8 +143,8 @@ module stg_id(
             r_opc_latch        <= `SIZE_OPC'b0;
             r_sgn_en_latch     <= 1'b0;
             r_imm_en_latch     <= 1'b0;
-            r_imm_val_latch    <= `SIZE_IMM'b0;
-            r_immsr_val_latch  <= `SIZE_IMMSR'b0;
+            r_imm12_val_latch  <= `SIZE_IMM12'b0;
+            r_imm8_val_latch   <= `SIZE_IMM8'b0;
             r_cc_latch         <= `SIZE_CC'b0;
             r_has_src_gp_latch <= 1'b0;
             r_tgt_gp_latch     <= `SIZE_TGT_GP'b0;
@@ -160,8 +160,8 @@ module stg_id(
             r_opc_latch        <= r_opc_latch;
             r_sgn_en_latch     <= r_sgn_en_latch;
             r_imm_en_latch     <= r_imm_en_latch;
-            r_imm_val_latch    <= r_imm_val_latch;
-            r_immsr_val_latch  <= r_immsr_val_latch;
+            r_imm12_val_latch  <= r_imm12_val_latch;
+            r_imm8_val_latch   <= r_imm8_val_latch;
             r_cc_latch         <= r_cc_latch;
             r_has_src_gp_latch <= r_has_src_gp_latch;
             r_tgt_gp_latch     <= r_tgt_gp_latch;
@@ -177,8 +177,8 @@ module stg_id(
             r_opc_latch        <= w_opc;
             r_sgn_en_latch     <= w_sgn_en;
             r_imm_en_latch     <= w_imm_en;
-            r_imm_val_latch    <= w_imm_val;
-            r_immsr_val_latch  <= w_immsr_val;
+            r_imm12_val_latch  <= w_imm12_val;
+            r_imm8_val_latch   <= w_imm8_val;
             r_cc_latch         <= w_cc;
             r_has_src_gp_latch <= w_has_src_gp;
             r_tgt_gp_latch     <= w_tgt_gp;
@@ -196,8 +196,8 @@ module stg_id(
     assign ow_opc        = r_opc_latch;
     assign ow_sgn_en     = r_sgn_en_latch;
     assign ow_imm_en     = r_imm_en_latch;
-    assign ow_imm_val    = r_imm_val_latch;
-    assign ow_immsr_val  = r_immsr_val_latch;
+    assign ow_imm12_val  = r_imm12_val_latch;
+    assign ow_imm8_val   = r_imm8_val_latch;
     assign ow_cc         = r_cc_latch;
     assign ow_has_src_gp = r_has_src_gp_latch;
     assign ow_tgt_gp     = r_tgt_gp_latch;
