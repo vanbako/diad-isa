@@ -760,6 +760,27 @@ SRLDso      #imm12(SRs), SRt   ; SRt = (SRs + sext(imm12)); (signed + operation)
 ;     [11- 0] RESERVED
 ;     {Z, C}
 
+; TODOS
+; µop mov AR <-> SR -> isa SETSSP, ...
+; BTP (branch target pad) for control flow integrity
+
+; Order of future implementation
+;   control flow integrity (BTP, check LR, SSP RAM)
+;   kernel/user mode & CSR
+;   interrupts
+;   int24 math
+;   float24 math
+;   MMU & TLB / i-cache & d-cache
+;   atomic operations
+;   DMA
+;   PCIe - like interface
+;   input: keyboard / mouse
+;   output: display (768x480@90Hz)
+;   output: audio
+;   blitter
+;   SMP (2 core)
+;   GPU
+
 - Pipeline Stages
 1. IA: Instruction Address
 2. IF: Instruction Fetch
