@@ -1,3 +1,14 @@
+; Preface
+; -------
+; Bit-field annotations indicate bit positions in the 24-bit instruction word.
+; For example, [23-20] marks the high 4 bits, with the left number the most
+; significant bit and the right number the least significant.
+; Registers use the following naming:
+;   DRx - data registers, ARx - address registers, SRx - special registers.
+; Suffixes such as t and s denote target and source respectively.
+; Braces list flags affected by the instruction, e.g. {Z, C} updates the Zero
+; and Carry flags.
+
 ; opclass 0000 Core ALU (reg–reg, unsigned flags)
 
 NOP                            ; no operation
@@ -6,7 +17,7 @@ NOP                            ; no operation
     [19-16] subop              ; 0000
 	[15- 0] RESERVED
 	{}
-MOVur    DRs, DRt              ; DRt = Drs;
+MOVur    DRs, DRt              ; DRt = DRs;
 	µop & isa
     [23-20] opclass            ; 0000
     [19-16] subop              ; 0001
@@ -14,7 +25,7 @@ MOVur    DRs, DRt              ; DRt = Drs;
 	[11- 8] DRs
 	[ 7- 0] RESERVED
 	{Z}
-MCCur    CC, DRs, DRt          ; if (CC) DRt = Drs;
+MCCur    CC, DRs, DRt          ; if (CC) DRt = DRs;
 	µop & isa
     [23-20] opclass            ; 0000
     [19-16] subop              ; 0010
