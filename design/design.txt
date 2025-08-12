@@ -12,14 +12,39 @@ integer & floating points math is not needed yet. They are for future extension
 no branch prediction (keep spectres away), no out-of-order nor speculative execution (no meltdown)
 Interrupts, exceptions, i-cache, d-cache, TLB, MMU are for future implementation
 Use handshake signals between stages to allow stages to indicate when they can accept new data.
-No multi-cycle instructions
+No multi-cycle micro-ops (ISA instructions can be multi micro-ops)
 Each stage has its own local hazard or control logic that communicates with adjacent stages.
-Use the built-in synchronous Block RAM (BRAM) for both instruction and data memories (will be caches later), single-ported. Make sure to use a one-clock delay (fetch & mem stages)
+Use the built-in synchronous Block RAM (BRAM) for both instruction and data memories (will be caches later). Make sure to use a one-clock delay (fetch & mem stages)
+I'm searching for the best way to implement LD/ST of AR/SR 48 bits in a single cycle.
 Memory initialisation is with a bootloader at runtime (now as initialized with a memory file for testing)
+JCC/BCC/BAL resolve in XT; IF/ID are squashed on taken.
 
 - Instruction format
 24 bit (diad) total, only those needed for the instruction are coded, the rest is marked as RESERVED and should be all zeros (not checked yet)
-CC jump/branch condition code (0 = RA, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE, 7 = BT, 8 = AT, 9 = BE, A = AE)
+CC jump/branch condition code (0 = AL, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE, 7 = BT, 8 = AT, 9 = BE, A = AE)
+immediates are 12 bit when used together with the uimm
+other immediates are different in size, depending on what is left in the instruction, this to maximize relative jumps and others
+
+- Condition Code Table
+Below is a definitive table for the condition codes (CC) jump/branch instructions.
+Each diad has a 4-bit field that defines the condition code as follows:
+  0 = AL, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE, 7 = BT, 8 = AT, 9 = BE, A = AE
+Details:
+- AL: Always – no flags are consulted.
+- EQ: Equal – condition is true when the Zero flag (Z) is set.
+- NE: Not Equal – condition is true when Z is clear.
+- LT: Less Than (signed) – condition is true when (N ⊕ V) = 1.
+- GT: Greater Than (signed) – condition is true when Z is clear and (N ⊕ V) = 0.
+- LE: Less or Equal (signed) – condition is true when Z is set or (N ⊕ V) = 1.
+- GE: Greater or Equal (signed) – condition is true when (N ⊕ V) = 0.
+- BT: Below (unsigned) – condition is true when the Carry flag (C) is set.
+- AT: Above (unsigned, strict) – condition is true when C is clear and Z is clear.
+- BE: Below or Equal (unsigned) – condition is true when C is set or Z is set.
+- AE: Above or Equal (unsigned) – condition is true when C is clear.
+Flags Consulted:
+  Signed comparisons use the Negative (N), Overflow (V) and Zero (Z) flags.
+  Unsigned comparisons consult the Carry (C) flag (with the Zero flag included in strict comparisons).
+This table defines which flags are used and the expressions for both signed and unsigned comparisons.
 
 - Instruction suffixes
 ur: unsigned register operation
@@ -28,14 +53,12 @@ sr: signed register operation
 si: signed immediate operation (sign extended immxx)
 so: signed immediate operation (sign extended immxx offset)
 
-In the assembly language, first operand is source, second operand is target.
+In the assembly language, last operand is target, if there are two, the previous is source.
 
 Move instructions set/clear Z flag (except for address instructions)
-Address instructions (including LD/ST) do not touch flags, except for compare and test
+Address instructions (including LD/ST) do not touch flags, except for MOVD, compare and test
 
 All 48 bit memory operations are little endian (2x 24 bit)
-
-For conditional instruction mnemonic (MCCxx, JCCxx, BCCxx), the CC is replaced by the condition code. (BRA = branch always, MEQ = move if equal, JAT = jump if above, etc.)
 
 ; TODOS
 ; µop mov AR <-> SR -> isa SETSSP, ...
@@ -90,10 +113,10 @@ FL  :
 - memories
 instruction:
 	4096 diads (24 bits) in size, 48 bit address space
-	read-only during pipeline operation (BRAM in Artix-7)
+	read-only during pipeline operation (BRAM)
 data:
 	4096 diads (24 bits) in size, 48 bit address space
-	read-write (BRAM in Artix-7)
+	read-write (BRAM)
 
 - modules
 testbench

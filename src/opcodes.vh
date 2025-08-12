@@ -168,7 +168,7 @@
 `define SUBOP_JCCui 4'b0010 // µop & isa
 `define SUBOP_BCCsr 4'b0011 // µop & isa
 `define SUBOP_BCCso 4'b0100 // µop & isa
-`define SUBOP_BRAso 4'b0101 // µop & isa
+`define SUBOP_BALso 4'b0101 // µop & isa
 `define SUBOP_JSRur 4'b0110 // isa
 `define SUBOP_JSRui 4'b0111 // isa
 `define SUBOP_BSRsr 4'b1000 // isa
@@ -180,7 +180,7 @@
 `define OPC_JCCui {`OPCLASS_7, `SUBOP_JCCui}
 `define OPC_BCCsr {`OPCLASS_7, `SUBOP_BCCsr}
 `define OPC_BCCso {`OPCLASS_7, `SUBOP_BCCso}
-`define OPC_BRAso {`OPCLASS_7, `SUBOP_BRAso}
+`define OPC_BALso {`OPCLASS_7, `SUBOP_BALso}
 `define OPC_JSRur {`OPCLASS_7, `SUBOP_JSRur}
 `define OPC_JSRui {`OPCLASS_7, `SUBOP_JSRui}
 `define OPC_BSRsr {`OPCLASS_7, `SUBOP_BSRsr}
