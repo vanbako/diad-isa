@@ -4,192 +4,234 @@
 `include "src/sizes.vh"
 
 // OPCLASS
-`define OPCLASS_RU   4'h0
-`define OPCLASS_RS   4'h1
-`define OPCLASS_IU   4'h2
-`define OPCLASS_IS   4'h3
-`define OPCLASS_SR   4'h4
-`define OPCLASS_ISA  4'h5
+`define OPCLASS_0 4'b0000
+`define OPCLASS_1 4'b0001
+`define OPCLASS_2 4'b0010
+`define OPCLASS_3 4'b0011
+`define OPCLASS_4 4'b0100
+`define OPCLASS_5 4'b0101
+`define OPCLASS_6 4'b0110
+`define OPCLASS_7 4'b0111
+`define OPCLASS_8 4'b1000
+`define OPCLASS_9 4'b1001
+`define OPCLASS_A 4'b1010
+`define OPCLASS_B 4'b1011
+`define OPCLASS_C 4'b1100
+`define OPCLASS_D 4'b1101
+`define OPCLASS_E 4'b1110
+`define OPCLASS_F 4'b1111
 
-// OPCODE DEFINITIONS
-`define OPC_NOP       8'h00
-`define SUBOP_NOP     4'h0
+// OPCLASS_0
+`define SUBOP_NOP   4'b0000 // µop & isa
+`define SUBOP_MOVur 4'b0001 // µop & isa
+`define SUBOP_MCCur 4'b0010 // µop & isa
+`define SUBOP_ADDur 4'b0011 // µop & isa
+`define SUBOP_SUBur 4'b0100 // µop & isa
+`define SUBOP_NOTur 4'b0101 // µop & isa
+`define SUBOP_ANDur 4'b0110 // µop & isa
+`define SUBOP_ORur  4'b0111 // µop & isa
+`define SUBOP_XORur 4'b1000 // µop & isa
+`define SUBOP_SHLur 4'b1001 // µop & isa
+`define SUBOP_ROLur 4'b1010 // µop & isa
+`define SUBOP_SHRur 4'b1011 // µop & isa
+`define SUBOP_RORur 4'b1100 // µop & isa
+`define SUBOP_CMPur 4'b1101 // µop & isa
+`define SUBOP_TSTur 4'b1110 // µop & isa
 
-// REGISTER UNSIGNED
-`define OPC_RU_LUI      8'h01
-`define SUBOP_RU_LUI    4'h1
-`define OPC_RU_MOVu     8'h02
-`define SUBOP_RU_MOVu   4'h2
-`define OPC_RU_ADDu     8'h03
-`define SUBOP_RU_ADDu   4'h3
-`define OPC_RU_SUBu     8'h04
-`define SUBOP_RU_SUBu   4'h4
-`define OPC_RU_NOTu     8'h05
-`define SUBOP_RU_NOTu   4'h5
-`define OPC_RU_ANDu     8'h06
-`define SUBOP_RU_ANDu   4'h6
-`define OPC_RU_ORu      8'h07
-`define SUBOP_RU_ORu    4'h7
-`define OPC_RU_XORu     8'h08
-`define SUBOP_RU_XORu   4'h8
-`define OPC_RU_SHLu     8'h09
-`define SUBOP_RU_SHLu   4'h9
-`define OPC_RU_SHRu     8'h0A
-`define SUBOP_RU_SHRu   4'hA
-`define OPC_RU_CMPu     8'h0B
-`define SUBOP_RU_CMPu   4'hB
-`define OPC_RU_JCCu     8'h0C
-`define SUBOP_RU_JCCu   4'hC
-`define OPC_RU_LDu      8'h0E
-`define SUBOP_RU_LDu    4'hE
-`define OPC_RU_STu      8'h0F
-`define SUBOP_RU_STu    4'hF
+`define OPC_NOP   {`OPCLASS_0, `SUBOP_NOP}
+`define OPC_MOVur {`OPCLASS_0, `SUBOP_MOVur}
+`define OPC_MCCur {`OPCLASS_0, `SUBOP_MCCur}
+`define OPC_ADDur {`OPCLASS_0, `SUBOP_ADDur}
+`define OPC_SUBur {`OPCLASS_0, `SUBOP_SUBur}
+`define OPC_NOTur {`OPCLASS_0, `SUBOP_NOTur}
+`define OPC_ANDur {`OPCLASS_0, `SUBOP_ANDur}
+`define OPC_ORur  {`OPCLASS_0, `SUBOP_ORur}
+`define OPC_XORur {`OPCLASS_0, `SUBOP_XORur}
+`define OPC_SHLur {`OPCLASS_0, `SUBOP_SHLur}
+`define OPC_ROLur {`OPCLASS_0, `SUBOP_ROLur}
+`define OPC_SHRur {`OPCLASS_0, `SUBOP_SHRur}
+`define OPC_RORur {`OPCLASS_0, `SUBOP_RORur}
+`define OPC_CMPur {`OPCLASS_0, `SUBOP_CMPur}
+`define OPC_TSTur {`OPCLASS_0, `SUBOP_TSTur}
 
-// REGISTER SIGNED
-`define OPC_RS_ADDs     8'h13
-`define SUBOP_RS_ADDs   4'h3
-`define OPC_RS_SUBs     8'h14
-`define SUBOP_RS_SUBs   4'h4
-`define OPC_RS_SHRs     8'h1A
-`define SUBOP_RS_SHRs   4'hA
-`define OPC_RS_CMPs     8'h1B
-`define SUBOP_RS_CMPs   4'hB
-`define OPC_RS_BCCs     8'h1D
-`define SUBOP_RS_BCCs   4'hD
+// OPCLASS_1
+`define SUBOP_LUIui 4'b0000 // µop & isa
+`define SUBOP_MOVui 4'b0001 // µop & isa
+`define SUBOP_ADDui 4'b0011 // µop & isa
+`define SUBOP_SUBui 4'b0100 // µop & isa
+`define SUBOP_ANDui 4'b0110 // µop & isa
+`define SUBOP_ORui  4'b0111 // µop & isa
+`define SUBOP_XORui 4'b1000 // µop & isa
+`define SUBOP_SHLui 4'b1001 // µop & isa
+`define SUBOP_ROLui 4'b1010 // µop & isa
+`define SUBOP_SHRui 4'b1011 // µop & isa
+`define SUBOP_RORui 4'b1100 // µop & isa
+`define SUBOP_CMPui 4'b1101 // µop & isa
 
-// IMMEDIATE UNSIGNED
-`define OPC_IU_MOViu    8'h22
-`define SUBOP_IU_MOViu  4'h2
-`define OPC_IU_ADDiu    8'h23
-`define SUBOP_IU_ADDiu  4'h3
-`define OPC_IU_SUBiu    8'h24
-`define SUBOP_IU_SUBiu  4'h4
-`define OPC_IU_ANDiu    8'h26
-`define SUBOP_IU_ANDiu  4'h6
-`define OPC_IU_ORiu     8'h27
-`define SUBOP_IU_ORiu   4'h7
-`define OPC_IU_XORiu    8'h28
-`define SUBOP_IU_XORiu  4'h8
-`define OPC_IU_SHLiu    8'h29
-`define SUBOP_IU_SHLiu  4'h9
-`define OPC_IU_SHRiu    8'h2A
-`define SUBOP_IU_SHRiu  4'hA
-`define OPC_IU_CMPiu    8'h2B
-`define SUBOP_IU_CMPiu  4'hB
-`define OPC_IU_JCCiu    8'h2C
-`define SUBOP_IU_JCCiu  4'hC
-`define OPC_IU_STiu     8'h2F
-`define SUBOP_IU_STiu   4'hF
+`define OPC_LUIui {`OPCLASS_1, `SUBOP_LUIui}
+`define OPC_MOVui {`OPCLASS_1, `SUBOP_MOVui}
+`define OPC_ADDui {`OPCLASS_1, `SUBOP_ADDui}
+`define OPC_SUBui {`OPCLASS_1, `SUBOP_SUBui}
+`define OPC_ANDui {`OPCLASS_1, `SUBOP_ANDui}
+`define OPC_ORui  {`OPCLASS_1, `SUBOP_ORui}
+`define OPC_XORui {`OPCLASS_1, `SUBOP_XORui}
+`define OPC_SHLui {`OPCLASS_1, `SUBOP_SHLui}
+`define OPC_ROLui {`OPCLASS_1, `SUBOP_ROLui}
+`define OPC_SHRui {`OPCLASS_1, `SUBOP_SHRui}
+`define OPC_RORui {`OPCLASS_1, `SUBOP_RORui}
+`define OPC_CMPui {`OPCLASS_1, `SUBOP_CMPui}
 
-// IMMEDIATE SIGNED
-`define OPC_IS_MOVis    8'h32
-`define SUBOP_IS_MOVis  4'h2
-`define OPC_IS_ADDis    8'h33
-`define SUBOP_IS_ADDis  4'h3
-`define OPC_IS_SUBis    8'h34
-`define SUBOP_IS_SUBis  4'h4
-`define OPC_IS_SHRis    8'h3A
-`define SUBOP_IS_SHRis  4'hA
-`define OPC_IS_CMPis    8'h3B
-`define SUBOP_IS_CMPis  4'hB
-`define OPC_IS_BCCis    8'h3D
-`define SUBOP_IS_BCCis  4'hD
-`define OPC_IS_STis     8'h3F
-`define SUBOP_IS_STis   4'hF
+// OPCLASS_2
+`define SUBOP_ADDsr 4'b0011 // µop & isa
+`define SUBOP_SUBsr 4'b0100 // µop & isa
+`define SUBOP_NEGsr 4'b0101 // µop & isa
+`define SUBOP_SHRsr 4'b1011 // µop & isa
+`define SUBOP_CMPsr 4'b1101 // µop & isa
+`define SUBOP_TSTsr 4'b1110 // µop & isa
 
-// SPECIAL REGISTER
-`define OPC_SR_HLT       8'h41
-`define SUBOP_SR_HLT     4'h1
-`define OPC_SR_SRMOVu    8'h42
-`define SUBOP_SR_SRMOVu  4'h2
-`define OPC_SR_SRADDis   8'h43
-`define SUBOP_SR_SRADDis 4'h3
-`define OPC_SR_SRSUBis   8'h44
-`define SUBOP_SR_SRSUBis 4'h4
-`define OPC_SR_SRCMPu    8'h4B
-`define SUBOP_SR_SRCMPu  4'hB
-`define OPC_SR_SRJCCu    8'h4C
-`define SUBOP_SR_SRJCCu  4'hC
-`define OPC_SR_SRLDu     8'h4E
-`define SUBOP_SR_SRLDu   4'hE
-`define OPC_SR_SRSTu     8'h4F
-`define SUBOP_SR_SRSTu   4'hF
+`define OPC_NEGsr {`OPCLASS_2, `SUBOP_NEGsr}
+`define OPC_ADDsr {`OPCLASS_2, `SUBOP_ADDsr}
+`define OPC_SUBsr {`OPCLASS_2, `SUBOP_SUBsr}
+`define OPC_SHRsr {`OPCLASS_2, `SUBOP_SHRsr}
+`define OPC_CMPsr {`OPCLASS_2, `SUBOP_CMPsr}
+`define OPC_TSTsr {`OPCLASS_2, `SUBOP_TSTsr}
 
-// ISA
-`define OPC_ISA_PUSH    8'h50
-`define SUBOP_ISA_PUSH  4'h0
-`define OPC_ISA_POP     8'h51
-`define SUBOP_ISA_POP   4'h1
-`define OPC_ISA_JSR     8'h52
-`define SUBOP_ISA_JSR   4'h2
-`define OPC_ISA_JSRi    8'h53
-`define SUBOP_ISA_JSRi  4'h3
-`define OPC_ISA_BSR     8'h54
-`define SUBOP_ISA_BSR   4'h4
-`define OPC_ISA_BSRi    8'h55
-`define SUBOP_ISA_BSRi  4'h5
-`define OPC_ISA_RET     8'h56
-`define SUBOP_ISA_RET   4'h6
+// OPCLASS_3
+`define SUBOP_MOVsi 4'b0000 // µop & isa
+`define SUBOP_MCCsi 4'b0001 // µop & isa
+`define SUBOP_ADDsi 4'b0011 // µop & isa
+`define SUBOP_SUBsi 4'b0100 // µop & isa
+`define SUBOP_SHRsi 4'b1011 // µop & isa
+`define SUBOP_CMPsi 4'b1101 // µop & isa
 
-// function automatic [`HBIT_DATA:0] pack_instr_tgt;
-//     input [`HBIT_OPCLASS:0] i_opclass;
-//     input [`HBIT_SUBOP:0]   i_subop;
-//     input [`HBIT_TGT_GP:0]  i_tgt;
-//     reg   [`HBIT_DATA:0]    r_instr;
-// begin
-//     r_instr                                          = {`SIZE_DATA{1'b0}};
-//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
-//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
-//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
-//     pack_instr = r_instr;
-// end endfunction
+`define OPC_MOVsi {`OPCLASS_3, `SUBOP_MOVsi}
+`define OPC_MCCsi {`OPCLASS_3, `SUBOP_MCCsi}
+`define OPC_ADDsi {`OPCLASS_3, `SUBOP_ADDsi}
+`define OPC_SUBsi {`OPCLASS_3, `SUBOP_SUBsi}
+`define OPC_SHRsi {`OPCLASS_3, `SUBOP_SHRsi}
+`define OPC_CMPsi {`OPCLASS_3, `SUBOP_CMPsi}
 
-// function automatic [`HBIT_DATA:0] pack_instr_src;
-//     input [`HBIT_OPCLASS:0] i_opclass;
-//     input [`HBIT_SUBOP:0]   i_subop;
-//     input [`HBIT_TGT_GP:0]  i_tgt;
-//     input [`HBIT_SRC_GP:0]  i_src;
-//     reg   [`HBIT_DATA:0]    r_instr;
-// begin
-//     r_instr                                          = {`SIZE_DATA{1'b0}};
-//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
-//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
-//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
-//     r_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]   = i_src;
-//     pack_instr = r_instr;
-// end endfunction
+// OPCLASS_4
+`define SUBOP_LDur 4'b0000 // µop & isa
+`define SUBOP_STur 4'b0001 // µop & isa
+`define SUBOP_STui 4'b0010 // µop & isa
+`define SUBOP_STsi 4'b0011 // µop & isa
 
-// function automatic [`HBIT_DATA:0] pack_instr_imm12;
-//     input [`HBIT_OPCLASS:0] i_opclass;
-//     input [`HBIT_SUBOP:0]   i_subop;
-//     input [`HBIT_TGT_GP:0]  i_tgt;
-//     input [`HBIT_IMM12:0]   i_imm12;
-//     reg   [`HBIT_DATA:0]    r_instr;
-// begin
-//     r_instr                                          = {`SIZE_DATA{1'b0}};
-//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
-//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
-//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
-//     r_instr[`HBIT_INSTR_IMM12:`LBIT_INSTR_IMM12]     = i_imm12;
-//     pack_instr = r_instr;
-// end endfunction
+`define OPC_LDur {`OPCLASS_4, `SUBOP_LDur}
+`define OPC_STur {`OPCLASS_4, `SUBOP_STur}
+`define OPC_STui {`OPCLASS_4, `SUBOP_STui}
+`define OPC_STsi {`OPCLASS_4, `SUBOP_STsi}
 
-// function automatic [`HBIT_DATA:0] pack_instr_imm8;
-//     input [`HBIT_OPCLASS:0] i_opclass;
-//     input [`HBIT_SUBOP:0]   i_subop;
-//     input [`HBIT_TGT_GP:0]  i_tgt;
-//     input [`HBIT_SRC_GP:0]  i_src;
-//     input [`HBIT_IMM8:0]    i_imm8;
-//     reg   [`HBIT_DATA:0]    r_instr;
-// begin
-//     r_instr                                          = {`SIZE_DATA{1'b0}};
-//     r_instr[`HBIT_INSTR_OPCLASS:`LBIT_INSTR_OPCLASS] = i_opclass;
-//     r_instr[`HBIT_INSTR_SUBOP:`LBIT_INSTR_SUBOP]     = i_subop;
-//     r_instr[`HBIT_INSTR_TGT_GP:`LBIT_INSTR_TGT_GP]   = i_tgt;
-//     r_instr[`HBIT_INSTR_SRC_GP:`LBIT_INSTR_SRC_GP]   = i_src;
-//     r_instr[`HBIT_INSTR_IMM8:`LBIT_INSTR_IMM8]       = i_imm8;
-//     pack_instr = r_instr;
-// end endfunction
+// OPCLASS_5
+`define SUBOP_LDso  4'b0000 // µop & isa
+`define SUBOP_STso  4'b0001 // µop & isa
+`define SUBOP_LDAso 4'b0010 // µop & isa
+`define SUBOP_STAso 4'b0011 // µop & isa
+
+`define OPC_LDso  {`OPCLASS_5, `SUBOP_LDso}
+`define OPC_STso  {`OPCLASS_5, `SUBOP_STso}
+`define OPC_LDAso {`OPCLASS_5, `SUBOP_LDAso}
+`define OPC_STAso {`OPCLASS_5, `SUBOP_STAso}
+
+// OPCLASS_6
+`define SUBOP_MOVAur 4'b0001 // µop & isa
+`define SUBOP_MOVDur 4'b0010 // µop & isa
+`define SUBOP_ADDAur 4'b0011 // µop & isa
+`define SUBOP_SUBAur 4'b0100 // µop & isa
+`define SUBOP_MOVAsr 4'b0101 // µop & isa
+`define SUBOP_ADDAsr 4'b0110 // µop & isa
+`define SUBOP_SUBAsr 4'b0111 // µop & isa
+`define SUBOP_ADDAsi 4'b1000 // µop & isa
+`define SUBOP_SUBAsi 4'b1001 // µop & isa
+`define SUBOP_LEAso  4'b1010 // µop & isa
+`define SUBOP_ADRAso 4'b1011 // µop & isa
+`define SUBOP_CMPAur 4'b1101 // µop & isa
+`define SUBOP_TSTAur 4'b1110 // µop & isa
+
+`define OPC_MOVAur {`OPCLASS_6, `SUBOP_MOVAur}
+`define OPC_MOVDur {`OPCLASS_6, `SUBOP_MOVDur}
+`define OPC_ADDAur {`OPCLASS_6, `SUBOP_ADDAur}
+`define OPC_SUBAur {`OPCLASS_6, `SUBOP_SUBAur}
+`define OPC_MOVAsr {`OPCLASS_6, `SUBOP_MOVAsr}
+`define OPC_ADDAsr {`OPCLASS_6, `SUBOP_ADDAsr}
+`define OPC_SUBAsr {`OPCLASS_6, `SUBOP_SUBAsr}
+`define OPC_ADDAsi {`OPCLASS_6, `SUBOP_ADDAsi}
+`define OPC_SUBAsi {`OPCLASS_6, `SUBOP_SUBAsi}
+`define OPC_LEAso  {`OPCLASS_6, `SUBOP_LEAso}
+`define OPC_ADRAso {`OPCLASS_6, `SUBOP_ADRAso}
+`define OPC_CMPAur {`OPCLASS_6, `SUBOP_CMPAur}
+`define OPC_TSTAur {`OPCLASS_6, `SUBOP_TSTAur}
+
+// OPCLASS_7
+`define SUBOP_BTP   4'b0000 // isa
+`define SUBOP_JCCur 4'b0001 // µop & isa
+`define SUBOP_JCCui 4'b0010 // µop & isa
+`define SUBOP_BCCsr 4'b0011 // µop & isa
+`define SUBOP_BCCso 4'b0100 // µop & isa
+`define SUBOP_BRAso 4'b0101 // µop & isa
+`define SUBOP_JSRur 4'b0110 // isa
+`define SUBOP_JSRui 4'b0111 // isa
+`define SUBOP_BSRsr 4'b1000 // isa
+`define SUBOP_BSRso 4'b1001 // isa
+`define SUBOP_RET   4'b1010 // isa
+
+`define OPC_BTP   {`OPCLASS_7, `SUBOP_BTP}
+`define OPC_JCCur {`OPCLASS_7, `SUBOP_JCCur}
+`define OPC_JCCui {`OPCLASS_7, `SUBOP_JCCui}
+`define OPC_BCCsr {`OPCLASS_7, `SUBOP_BCCsr}
+`define OPC_BCCso {`OPCLASS_7, `SUBOP_BCCso}
+`define OPC_BRAso {`OPCLASS_7, `SUBOP_BRAso}
+`define OPC_JSRur {`OPCLASS_7, `SUBOP_JSRur}
+`define OPC_JSRui {`OPCLASS_7, `SUBOP_JSRui}
+`define OPC_BSRsr {`OPCLASS_7, `SUBOP_BSRsr}
+`define OPC_BSRso {`OPCLASS_7, `SUBOP_BSRso}
+`define OPC_RET   {`OPCLASS_7, `SUBOP_RET}
+
+// OPCLASS_8
+`define SUBOP_PUSHur  4'b0000 // isa
+`define SUBOP_PUSHAur 4'b0001 // isa
+`define SUBOP_POPur   4'b0010 // isa
+`define SUBOP_POPAur  4'b0011 // isa
+
+`define OPC_PUSHur  {`OPCLASS_8, `SUBOP_PUSHur}
+`define OPC_PUSHAur {`OPCLASS_8, `SUBOP_PUSHAur}
+`define OPC_POPur   {`OPCLASS_8, `SUBOP_POPur}
+`define OPC_POPAur  {`OPCLASS_8, `SUBOP_POPAur}
+
+// OPCLASS_9
+
+// OPCLASS_A
+
+`define SUBOP_SRHLT  4'b0000 // µop & isa
+`define SUBOP_SETSSP 4'b0001 // isa
+
+`define OPC_SRHLT  {`OPCLASS_A, `SUBOP_SRHLT}
+`define OPC_SETSSP {`OPCLASS_A, `SUBOP_SETSSP}
+
+// OPCLASS_B
+
+// OPCLASS_C
+
+// OPCLASS_D
+
+// OPCLASS_E
+
+// OPCLASS_F
+
+`define SUBOP_SRMOVur  4'b0000 // µop
+`define SUBOP_SRMOVAur 4'b0001 // µop
+`define SUBOP_SRJCCso  4'b0010 // µop
+`define SUBOP_SRADDsi  4'b0011 // µop
+`define SUBOP_SRSUBsi  4'b0100 // µop
+`define SUBOP_SRSTso   4'b0101 // µop
+`define SUBOP_SRLDso   4'b0110 // µop
+
+`define OPC_SRMOVur {`OPCLASS_F, `SUBOP_SRMOVur}
+`define OPC_SRJCCso {`OPCLASS_F, `SUBOP_SRJCCso}
+`define OPC_SRADDsi {`OPCLASS_F, `SUBOP_SRADDsi}
+`define OPC_SRSUBsi {`OPCLASS_F, `SUBOP_SRSUBsi}
+`define OPC_SRSTso  {`OPCLASS_F, `SUBOP_SRSTso}
+`define OPC_SRLDso  {`OPCLASS_F, `SUBOP_SRLDso}
 
 function automatic [79:0] opc2str;
     input [`HBIT_OPC:0] opc;

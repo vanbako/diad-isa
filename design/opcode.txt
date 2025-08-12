@@ -1,42 +1,3 @@
-- About
-I'm creating a diad (24 bit) 8-stage RISC microarchitecture core
-The main goal is to keep the pipeline as simple as possible and to avoid stalls where possible
-Toolchain is currently iverilog
-
-- Details
-Board: OrangeCrab or ULX3S or similar
-instructions, all memories, (GP) general purpose registers are diad (24 bit) in size
-(SSP) shadow stack pointer, (LR) link register, (PC) program counter are tetrad (48 bit) in size
-memories are 24 bit word (not byte), 48 bit addressable
-integer & floating points math is not needed yet. They are for future extension
-no branch prediction (keep spectres away), no out-of-order nor speculative execution (no meltdown)
-Interrupts, exceptions, i-cache, d-cache, TLB, MMU are for future implementation
-Use handshake signals between stages to allow stages to indicate when they can accept new data.
-No multi-cycle instructions
-Each stage has its own local hazard or control logic that communicates with adjacent stages.
-Use the built-in synchronous Block RAM (BRAM) for both instruction and data memories (will be caches later), single-ported. Make sure to use a one-clock delay (fetch & mem stages)
-Memory initialisation is with a bootloader at runtime (now as initialized with a memory file for testing)
-
-- Instruction format
-24 bit (diad) total, only those needed for the instruction are coded, the rest is marked as RESERVED and should be all zeros (not checked yet)
-CC jump/branch condition code (0 = RA, 1 = EQ, 2 = NE, 3 = LT, 4 = GT, 5 = LE, 6 = GE, 7 = BT, 8 = AT, 9 = BE, A = AE)
-
-- Instruction suffixes
-ur: unsigned register operation
-ui: unsigned immediate value (upper from uimm and lower from immxx)
-sr: signed register operation
-si: signed immediate operation (sign extended immxx)
-so: signed immediate operation (sign extended immxx offset)
-
-In the assembly language, first operand is source, second operand is target.
-
-Move instructions set/clear Z flag (except for address instructions)
-Address instructions (including LD/ST) do not touch flags, except for compare and test
-
-All 48 bit memory operations are little endian (2x 24 bit)
-
-For conditional instruction mnemonic (MCCxx, JCCxx, BCCxx), the CC is replaced by the condition code. (BRA = branch always, MEQ = move if equal, JAT = jump if above, etc.)
-
 ; opclass 0000 Core ALU (reg–reg, unsigned flags)
 
 NOP                            ; no operation
@@ -177,55 +138,39 @@ MOVui    #imm12, DRt           ; DRt = {uimm[11-0], imm12};
 ADDui    #imm12, DRt           ; unsigned DRt += {uimm[11-0], imm12};
 	µop & isa
     [23-20] opclass            ; 0001
-    [19-16] subop              ; 0010
+    [19-16] subop              ; 0011
     [15-12] DRt
     [11- 0] imm12
 	{Z, C}
 SUBui    #imm12, DRt           ; unsigned DRt -= {uimm[11-0], imm12};
 	µop & isa
     [23-20] opclass            ; 0001
-    [19-16] subop              ; 0011
+    [19-16] subop              ; 0100
     [15-12] DRt
     [11- 0] imm12
 	{Z, C}
 ANDui    #imm12, DRt           ; DRt &= {uimm[11-0], imm12};
 	µop & isa
     [23-20] opclass            ; 0001
-    [19-16] subop              ; 0100
+    [19-16] subop              ; 0110
     [15-12] DRt
     [11- 0] imm12
 	{Z}
 ORui     #imm12, DRt           ; DRt |= {uimm[11-0], imm12};
 	µop & isa
     [23-20] opclass            ; 0001
-    [19-16] subop              ; 0101
+    [19-16] subop              ; 0111
     [15-12] DRt
     [11- 0] imm12
 	{Z}
 XORui    #imm12, DRt           ; DRt ^= {uimm[11-0], imm12};
 	µop & isa
     [23-20] opclass            ; 0001
-    [19-16] subop              ; 0110
+    [19-16] subop              ; 1000
     [15-12] DRt
     [11- 0] imm12
 	{Z}
 SHLui    #imm5, DRt            ; DRt <<= imm5;
-	µop & isa
-    [23-20] opclass            ; 0001
-    [19-16] subop              ; 0111
-    [15-12] DRt
-	[11- 5] RESERVED
-    [ 4- 0] imm5
-	{Z, C}                     ; only if imm5 is non-zero
-ROLui    #imm5, DRt            ; DRt <<<= imm5;
-	µop & isa
-    [23-20] opclass            ; 0001
-    [19-16] subop              ; 1000
-    [15-12] DRt
-	[11- 5] RESERVED
-    [ 4- 0] imm5
-	{Z, C}                     ; only if imm5 is non-zero
-SHRui    #imm5, DRt            ; unsigned DRt >>= imm5;
 	µop & isa
     [23-20] opclass            ; 0001
     [19-16] subop              ; 1001
@@ -233,7 +178,7 @@ SHRui    #imm5, DRt            ; unsigned DRt >>= imm5;
 	[11- 5] RESERVED
     [ 4- 0] imm5
 	{Z, C}                     ; only if imm5 is non-zero
-RORui    #imm5, DRt            ; DRt >>>= imm5;
+ROLui    #imm5, DRt            ; DRt <<<= imm5;
 	µop & isa
     [23-20] opclass            ; 0001
     [19-16] subop              ; 1010
@@ -241,27 +186,36 @@ RORui    #imm5, DRt            ; DRt >>>= imm5;
 	[11- 5] RESERVED
     [ 4- 0] imm5
 	{Z, C}                     ; only if imm5 is non-zero
-CMPui    #imm12, DRt           ; unsigned imm12 == DRt;
+SHRui    #imm5, DRt            ; unsigned DRt >>= imm5;
 	µop & isa
     [23-20] opclass            ; 0001
     [19-16] subop              ; 1011
+    [15-12] DRt
+	[11- 5] RESERVED
+    [ 4- 0] imm5
+	{Z, C}                     ; only if imm5 is non-zero
+RORui    #imm5, DRt            ; DRt >>>= imm5;
+	µop & isa
+    [23-20] opclass            ; 0001
+    [19-16] subop              ; 1100
+    [15-12] DRt
+	[11- 5] RESERVED
+    [ 4- 0] imm5
+	{Z, C}                     ; only if imm5 is non-zero
+CMPui    #imm12, DRt           ; unsigned imm12 == DRt;
+	µop & isa
+    [23-20] opclass            ; 0001
+    [19-16] subop              ; 1101
     [15-12] DRt
     [11- 0] imm12
 	{Z, C}
 
 ; opclass 0010 Core ALU (reg–reg, signed flags)
 
-NEGsr    DRt                   ; signed DRt = -DRt;
-	µop & isa
-    [23-20] opclass            ; 0010
-    [19-16] subop              ; 0000
-    [15-12] DRt
-	[11- 0] RESERVED
-	{Z, N, V}
 ADDsr    DRs, DRt              ; signed DRt += DRs;
 	µop & isa
     [23-20] opclass            ; 0010
-    [19-16] subop              ; 0001
+    [19-16] subop              ; 0011
     [15-12] DRt
     [11- 8] DRs
 	[ 7- 0] RESERVED
@@ -269,15 +223,22 @@ ADDsr    DRs, DRt              ; signed DRt += DRs;
 SUBsr    DRs, DRt              ; signed DRt -= DRs;
 	µop & isa
     [23-20] opclass            ; 0010
-    [19-16] subop              ; 0010
+    [19-16] subop              ; 0100
     [15-12] DRt
     [11- 8] DRs
 	[ 7- 0] RESERVED
 	{Z, N, V}
+NEGsr    DRt                   ; signed DRt = -DRt;
+	µop & isa
+    [23-20] opclass            ; 0010
+    [19-16] subop              ; 0101
+    [15-12] DRt
+	[11- 0] RESERVED
+	{Z, N, V}
 SHRsr    DRs, DRt              ; signed DRt >>= DRs;
 	µop & isa
     [23-20] opclass            ; 0010
-    [19-16] subop              ; 0011
+    [19-16] subop              ; 1011
     [15-12] DRt
     [11- 8] DRs
 	[ 7- 0] RESERVED
@@ -285,7 +246,7 @@ SHRsr    DRs, DRt              ; signed DRt >>= DRs;
 CMPsr    DRs, DRt              ; signed DRs == DRt;
 	µop & isa
     [23-20] opclass            ; 0010
-    [19-16] subop              ; 0100
+    [19-16] subop              ; 1101
     [15-12] DRt
     [11- 8] DRs
 	[ 7- 0] RESERVED
@@ -293,7 +254,7 @@ CMPsr    DRs, DRt              ; signed DRs == DRt;
 TSTsr    DRt                   ; signed DRt test;
 	µop & isa
     [23-20] opclass            ; 0010
-    [19-16] subop              ; 0101
+    [19-16] subop              ; 1110
     [15-12] DRt
 	[11- 0] RESERVED
 	{Z, N}
@@ -318,21 +279,21 @@ MCCsi    #imm8, DRt            ; if (CC) DRt = sext(imm8);
 ADDsi    #imm12, DRt           ; signed DRt += sext(imm12);
 	µop & isa
     [23-20] opclass            ; 0011
-    [19-16] subop              ; 0010
+    [19-16] subop              ; 0011
     [15-12] DRt
     [11- 0] imm12
 	{Z, N, V}
 SUBsi    #imm12, DRt           ; signed DRt -= sext(imm12);
 	µop & isa
     [23-20] opclass            ; 0011
-    [19-16] subop              ; 0011
+    [19-16] subop              ; 0100
     [15-12] DRt
     [11- 0] imm12
 	{Z, N, V}
 SHRsi    #imm5, DRt            ; signed DRt >>= imm5;
 	µop & isa
     [23-20] opclass            ; 0011
-    [19-16] subop              ; 0100
+    [19-16] subop              ; 1011
     [15-12] DRt
 	[11- 5] RESERVED
     [ 4- 0] imm5
@@ -340,7 +301,7 @@ SHRsi    #imm5, DRt            ; signed DRt >>= imm5;
 CMPsi    #imm12, DRt           ; sext(imm12) == DRt;
 	µop & isa
     [23-20] opclass            ; 0011
-    [19-16] subop              ; 0101
+    [19-16] subop              ; 1101
     [15-12] DRt
     [11- 0] imm12
 	{Z, N, V}
@@ -415,31 +376,25 @@ STAso       ARs, #imm12(ARt)   ; (ARt + sext(imm12)) = ARs; (signed + operation)
 
 ; opclass 0110 Address-register ALU & moves (reg)
 
-LEAso       ARs+#imm12, ARt    ; ARt = ARs + sext(imm12); (signed + operation)
-	µop & isa
-    [23-20] opclass            ; 0110
-    [19-16] subop              ; 0000
-    [15-14] ARt
-    [13-12] ARs
-	[11- 0] imm12
-	{}
-ADRAso      PC+#imm14, ARt     ; ARt = PC + sext(imm14); (signed + operation)
-	µop & isa
-    [23-20] opclass            ; 0110
-    [19-16] subop              ; 0001
-    [15-14] ARt
-	[13- 0] imm14
-	{}
 MOVAur      DRs, ARt, H|L      ; ARt[23:0] = DRs;
 	µop & isa
     [23-20] opclass            ; 0110
-    [19-16] subop              ; 0010
+    [19-16] subop              ; 0001
     [15-14] ARt
     [13-10] DRs
 	[ 9   ] H|L                ; H=1, L=0
 	[ 8- 0] RESERVED
 	{}
-MOVAsr      DRs, ARt           ; ARt = sext(DRs);
+MOVDur     ARs, DRt, H|L       ; DRt = ARt[23:0];
+	µop & isa
+    [23-20] opclass            ; 0110
+    [19-16] subop              ; 0010
+    [15-12] DRt
+    [11-10] ARs
+	[ 9   ] H|L                ; H=1, L=0
+	[ 8- 0] RESERVED
+	{Z}
+ADDAur      DRs, ARt           ; unsigned ARt += zext(DRs);
 	µop & isa
     [23-20] opclass            ; 0110
     [19-16] subop              ; 0011
@@ -447,16 +402,15 @@ MOVAsr      DRs, ARt           ; ARt = sext(DRs);
     [13-10] DRs
 	[ 9- 0] RESERVED
 	{}
-MOVDur     ARs, DRt, H|L       ; DRt = ARt[23:0];
+SUBAur      DRs, ARt           ; unsigned ARt -= zext(DRs);
 	µop & isa
     [23-20] opclass            ; 0110
     [19-16] subop              ; 0100
-    [15-12] DRt
-    [11-10] ARs
-	[ 9   ] H|L                ; H=1, L=0
-	[ 8- 0] RESERVED
-	{Z}
-ADDAur      DRs, ARt           ; unsigned ARt += zext(DRs);
+    [15-14] ARt
+    [13-10] DRs
+	[ 9- 0] RESERVED
+	{}
+MOVAsr      DRs, ARt           ; ARt = sext(DRs);
 	µop & isa
     [23-20] opclass            ; 0110
     [19-16] subop              ; 0101
@@ -472,7 +426,7 @@ ADDAsr      DRs, ARt           ; signed ARt += sext(DRs);
     [13-10] DRs
 	[ 9- 0] RESERVED
 	{}
-SUBAur      DRs, ARt           ; unsigned ARt -= zext(DRs);
+SUBAsr      DRs, ARt           ; signed ARt -= sext(DRs);
 	µop & isa
     [23-20] opclass            ; 0110
     [19-16] subop              ; 0111
@@ -480,32 +434,39 @@ SUBAur      DRs, ARt           ; unsigned ARt -= zext(DRs);
     [13-10] DRs
 	[ 9- 0] RESERVED
 	{}
-SUBAsr      DRs, ARt           ; signed ARt -= sext(DRs);
-	µop & isa
-    [23-20] opclass            ; 0110
-    [19-16] subop              ; 1000
-    [15-14] ARt
-    [13-10] DRs
-	[ 9- 0] RESERVED
-	{}
 ADDAsi      #imm12, ARt        ; signed ARt += sext(imm12);
 	µop & isa
     [23-20] opclass            ; 0110
-    [19-16] subop              ; 1001
+    [19-16] subop              ; 1000
     [15-14] ARt
 	[11- 0] imm12
 	{}
 SUBAsi      #imm12, ARt        ; signed ARt -= sext(imm12);
 	µop & isa
     [23-20] opclass            ; 0110
-    [19-16] subop              ; 1010
+    [19-16] subop              ; 1001
     [15-14] ARt
 	[11- 0] imm12
+	{}
+LEAso       ARs+#imm12, ARt    ; ARt = ARs + sext(imm12); (signed + operation)
+	µop & isa
+    [23-20] opclass            ; 0110
+    [19-16] subop              ; 1010
+    [15-14] ARt
+    [13-12] ARs
+	[11- 0] imm12
+	{}
+ADRAso      PC+#imm14, ARt     ; ARt = PC + sext(imm14); (signed + operation)
+	µop & isa
+    [23-20] opclass            ; 0110
+    [19-16] subop              ; 1011
+    [15-14] ARt
+	[13- 0] imm14
 	{}
 CMPAur      ARs, ARt		   ; unsigned ARs == ARt;
 	µop & isa
     [23-20] opclass            ; 0110
-    [19-16] subop              ; 1011
+    [19-16] subop              ; 1101
     [15-14] ARt
     [13-12] ARs
 	[11- 0] RESERVED
@@ -513,17 +474,23 @@ CMPAur      ARs, ARt		   ; unsigned ARs == ARt;
 TSTAur      ARt                ; unsigned ARt == 0;
 	µop & isa
     [23-20] opclass            ; 0110
-    [19-16] subop              ; 1100
+    [19-16] subop              ; 1110
     [15-14] ARt
 	[13- 0] RESERVED
 	{Z}
 
 ; opclass 0111 Control flow (absolute via AR / long immediates) & linkage
 
+BTP                            ; branch target pad
+    isa
+    [23-20] opclass            ; 0111
+    [19-16] subop              ; 0000
+    [15- 0] RESERVED
+    {}
 JCCur    ARt                   ; if (CC) goto ARt;
 	µop & isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0000
+    [19-16] subop              ; 0001
     [15-14] ARt
 	[13-10] CC
 	[ 9- 0] RESERVED
@@ -531,14 +498,14 @@ JCCur    ARt                   ; if (CC) goto ARt;
 JCCui    #imm12                ; if (CC) goto {uimm[35-0], imm12};
 	µop & isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0001
+    [19-16] subop              ; 0010
 	[15-12] CC
     [11- 0] imm12
 	{}
 BCCsr    PC+DRt                ; if (CC) goto PC+signed(DRt);
 	µop & isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0010
+    [19-16] subop              ; 0011
     [15-12] DRt
 	[11- 8] CC
 	[ 7- 0] RESERVED
@@ -546,20 +513,20 @@ BCCsr    PC+DRt                ; if (CC) goto PC+signed(DRt);
 BCCso    PC+#imm12             ; if (CC) goto PC+sext(imm12);
 	µop & isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0011
+    [19-16] subop              ; 0100
 	[15-12] CC
     [11- 0] imm12
 	{}
 BRAso    PC+#imm16             ; goto PC+sext(imm16);
 	µop & isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0100
+    [19-16] subop              ; 0101
     [15- 0] imm16
 	{}
 JSRur       ARt                ; call ARt;
 	isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0101
+    [19-16] subop              ; 0110
     [15-14] ARt
 	[13- 0] RESERVED
 	{}
@@ -571,7 +538,7 @@ JSRur       ARt                ; call ARt;
 JSRui       #imm12             ; call {uimm[36-0], imm12};
 	isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0110
+    [19-16] subop              ; 0111
 	[15-12] RESERVED
 	[11- 0] imm12
 	{}
@@ -583,7 +550,7 @@ JSRui       #imm12             ; call {uimm[36-0], imm12};
 BSRsr       PC+DRt             ; call PC + sext(DRt);
 	isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 0111
+    [19-16] subop              ; 1000
     [15-12] DRt
 	[11- 0] RESERVED
 	{}
@@ -595,7 +562,7 @@ BSRsr       PC+DRt             ; call PC + sext(DRt);
 BSRso       PC+#imm16          ; call PC + sext(imm16); (signed + operation)
 	isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 1000
+    [19-16] subop              ; 1001
 	[15- 0] imm16
 	{}
 	µops
@@ -606,7 +573,7 @@ BSRso       PC+#imm16          ; call PC + sext(imm16); (signed + operation)
 RET                            ; return
 	isa
     [23-20] opclass            ; 0111
-    [19-16] subop              ; 1001
+    [19-16] subop              ; 1010
 	[15- 0] RESERVED
 	{}
 	µops
@@ -695,6 +662,15 @@ SRHLT                          ; halt;
     [19-16] subop              ; 0000
 	[15- 0] RESERVED
 	{}
+SETSSP      ARs                ; SSP = ARs;
+    isa
+    [23-20] opclass            ; 1010
+    [19-16] subop              ; 0001
+	[15-14] ARs
+	[13- 0] RESERVED
+	{}
+    µops
+        SRMOVAur     ARs, SSP
 
 ; opclass 1011 MMU / TLB & Cache management
 
@@ -714,31 +690,39 @@ SRMOVur     SRs, SRt           ; SRt = SRs;
     [13-12] SRs
 	[11- 0] RESERVED
 	{}
-SRJCCso     SRt+#imm14         ; if (CC) goto SRt + sext(imm14); (signed + operation)
+SRMOVAur    ARs, SRt           ; SRt = SRs;
     µop
     [23-20] opclass            ; 1111
     [19-16] subop              ; 0001
     [15-14] SRt
-	[13- 0] imm14
+    [13-12] ARs
+	[11- 0] RESERVED
 	{}
-SRADDsi     #imm14, SRt        ; signed SRt += sext(imm14);
+SRJCCso     SRt+#imm14         ; if (CC) goto SRt + sext(imm14); (signed + operation)
     µop
     [23-20] opclass            ; 1111
     [19-16] subop              ; 0010
     [15-14] SRt
 	[13- 0] imm14
 	{}
-SRSUBsi     #imm14, SRt        ; signed SRt -= sext(imm14);
+SRADDsi     #imm14, SRt        ; signed SRt += sext(imm14);
     µop
     [23-20] opclass            ; 1111
     [19-16] subop              ; 0011
     [15-14] SRt
 	[13- 0] imm14
 	{}
-SRSTso      SRs, #imm12(SRt)   ; (SRt + sext(imm12)) = SRs; (signed + operation)
+SRSUBsi     #imm14, SRt        ; signed SRt -= sext(imm14);
     µop
     [23-20] opclass            ; 1111
     [19-16] subop              ; 0100
+    [15-14] SRt
+	[13- 0] imm14
+	{}
+SRSTso      SRs, #imm12(SRt)   ; (SRt + sext(imm12)) = SRs; (signed + operation)
+    µop
+    [23-20] opclass            ; 1111
+    [19-16] subop              ; 0101
     [15-14] SRt
     [13-12] SRs
 	[11- 0] imm12
@@ -746,7 +730,7 @@ SRSTso      SRs, #imm12(SRt)   ; (SRt + sext(imm12)) = SRs; (signed + operation)
 SRLDso      #imm12(SRs), SRt   ; SRt = (SRs + sext(imm12)); (signed + operation)
     µop
     [23-20] opclass            ; 1111
-    [19-16] subop              ; 0101
+    [19-16] subop              ; 0110
     [15-14] SRt
     [13-12] SRs
 	[11- 0] imm12
@@ -759,77 +743,3 @@ SRLDso      #imm12(SRs), SRt   ; SRt = (SRs + sext(imm12)); (signed + operation)
 ;     [13-12] SRs
 ;     [11- 0] RESERVED
 ;     {Z, C}
-
-; TODOS
-; µop mov AR <-> SR -> isa SETSSP, ...
-; BTP (branch target pad) for control flow integrity
-
-; Order of future implementation
-;   control flow integrity (BTP, check LR, SSP RAM)
-;   kernel/user mode & CSR
-;   interrupts
-;   int24 math
-;   float24 math
-;   MMU & TLB / i-cache & d-cache
-;   atomic operations
-;   DMA
-;   PCIe - like interface
-;   input: keyboard / mouse
-;   output: display (768x480@90Hz)
-;   output: audio
-;   blitter
-;   SMP (2 core)
-;   GPU
-
-- Pipeline Stages
-1. IA: Instruction Address
-2. IF: Instruction Fetch
-3. ID: Instruction Decode
-4. XT: Translate
-5. EX: Execute
-6. MA: Memory Address
-7. MO: Memory Operation
-8. WB: Register Write Back
-
-- Data registers
-0-15 DRx : data
-
-- Address registers
-0-3 ARx : address
-
-- special registers
-LR  : link register
-ST  : special temporary
-SSP : shadow stack pointer
-PC  : program counter
-
-- flags
-FL  :
-	0  Z zero
-	1  N negative
-	2  C carry
-	3  V overflow
-
-- memories
-instruction:
-	4096 diads (24 bits) in size, 48 bit address space
-	read-only during pipeline operation (BRAM in Artix-7)
-data:
-	4096 diads (24 bits) in size, 48 bit address space
-	read-write (BRAM in Artix-7)
-
-- modules
-testbench
-diad
-	regdr
-	regar
-	regsr
-	mem (instruction and data)
-    stage_ia
-    stage_if
-	stage_xt
-    stage_id
-    stage_ex
-    stage_ma
-    stage_mo
-    stage_wb
