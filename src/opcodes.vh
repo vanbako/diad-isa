@@ -3,7 +3,7 @@
 
 `include "src/sizes.vh"
 
-// OPCLASS
+// OPCLASSES
 `define OPCLASS_0 4'b0000
 `define OPCLASS_1 4'b0001
 `define OPCLASS_2 4'b0010
@@ -237,60 +237,107 @@ function automatic [79:0] opc2str;
     input [`HBIT_OPC:0] opc;
     begin
         case (opc)
-            `OPC_NOP:       opc2str = "NOP";
-            `OPC_RU_LUI:    opc2str = "RU_LUI";
-            `OPC_RU_MOVu:   opc2str = "RU_MOVu";
-            `OPC_RU_ADDu:   opc2str = "RU_ADDu";
-            `OPC_RU_SUBu:   opc2str = "RU_SUBu";
-            `OPC_RU_NOTu:   opc2str = "RU_NOTu";
-            `OPC_RU_ANDu:   opc2str = "RU_ANDu";
-            `OPC_RU_ORu:    opc2str = "RU_ORu";
-            `OPC_RU_XORu:   opc2str = "RU_XORu";
-            `OPC_RU_SHLu:   opc2str = "RU_SHLu";
-            `OPC_RU_SHRu:   opc2str = "RU_SHRu";
-            `OPC_RU_CMPu:   opc2str = "RU_CMPu";
-            `OPC_RU_JCCu:   opc2str = "RU_JCCu";
-            `OPC_RU_LDu:    opc2str = "RU_LDu";
-            `OPC_RU_STu:    opc2str = "RU_STu";
-            `OPC_RS_ADDs:   opc2str = "RS_ADDs";
-            `OPC_RS_SUBs:   opc2str = "RS_SUBs";
-            `OPC_RS_SHRs:   opc2str = "RS_SHRs";
-            `OPC_RS_CMPs:   opc2str = "RS_CMPs";
-            `OPC_RS_BCCs:   opc2str = "RS_BCCs";
-            `OPC_IU_MOViu:  opc2str = "IU_MOViu";
-            `OPC_IU_ADDiu:  opc2str = "IU_ADDiu";
-            `OPC_IU_SUBiu:  opc2str = "IU_SUBiu";
-            `OPC_IU_ANDiu:  opc2str = "IU_ANDiu";
-            `OPC_IU_ORiu:   opc2str = "IU_ORiu";
-            `OPC_IU_XORiu:  opc2str = "IU_XORiu";
-            `OPC_IU_SHLiu:  opc2str = "IU_SHLiu";
-            `OPC_IU_SHRiu:  opc2str = "IU_SHRiu";
-            `OPC_IU_CMPiu:  opc2str = "IU_CMPiu";
-            `OPC_IU_JCCiu:  opc2str = "IU_JCCiu";
-            `OPC_IU_STiu:   opc2str = "IU_STiu";
-            `OPC_IS_MOVis:  opc2str = "IS_MOVis";
-            `OPC_IS_ADDis:  opc2str = "IS_ADDis";
-            `OPC_IS_SUBis:  opc2str = "IS_SUBis";
-            `OPC_IS_SHRis:  opc2str = "IS_SHRis";
-            `OPC_IS_CMPis:  opc2str = "IS_CMPis";
-            `OPC_IS_BCCis:  opc2str = "IS_BCCis";
-            `OPC_IS_STis:   opc2str = "IS_STis";
-            `OPC_SR_HLT:    opc2str = "SR_HLT";
-            `OPC_SR_SRMOVu: opc2str = "SR_SRMOVu";
-            `OPC_SR_SRJCCu: opc2str = "SR_SRJCCu";
-            `OPC_SR_SRADDis:opc2str = "SR_SRADDis";
-            `OPC_SR_SRSUBis:opc2str = "SR_SRSUBis";
-            `OPC_SR_SRCMPu: opc2str = "SR_SRCMPu";
-            `OPC_SR_SRLDu:  opc2str = "SR_SRLDu";
-            `OPC_SR_SRSTu:  opc2str = "SR_SRSTu";
-            `OPC_ISA_PUSH:  opc2str = "ISA_PUSH";
-            `OPC_ISA_POP:   opc2str = "ISA_POP";
-            `OPC_ISA_JSR:   opc2str = "ISA_JSR";
-            `OPC_ISA_JSRi:  opc2str = "ISA_JSRi";
-            `OPC_ISA_BSR:   opc2str = "ISA_BSR";
-            `OPC_ISA_BSRi:  opc2str = "ISA_BSRi";
-            `OPC_ISA_RET:   opc2str = "ISA_RET";
-            default:        opc2str = "UNKNOWN";
+// OPCLASS_0
+            `OPC_NOP:     opc2str = "NOP";
+            `OPC_MOVur:   opc2str = "MOVur";
+            `OPC_MCCur:   opc2str = "MCCur";
+            `OPC_ADDur:   opc2str = "ADDur";
+            `OPC_SUBur:   opc2str = "SUBur";
+            `OPC_NOTur:   opc2str = "NOTur";
+            `OPC_ANDur:   opc2str = "ANDur";
+            `OPC_ORur:    opc2str = "ORur";
+            `OPC_XORur:   opc2str = "XORur";
+            `OPC_SHLur:   opc2str = "SHLur";
+            `OPC_ROLur:   opc2str = "ROLur";
+            `OPC_SHRur:   opc2str = "SHRur";
+            `OPC_RORur:   opc2str = "RORur";
+            `OPC_CMPur:   opc2str = "CMPur";
+            `OPC_TSTur:   opc2str = "TSTur";
+// OPCLASS_1
+            `OPC_LUIui:   opc2str = "LUIui";
+            `OPC_MOVui:   opc2str = "MOVui";
+            `OPC_ADDui:   opc2str = "ADDui";
+            `OPC_SUBui:   opc2str = "SUBui";
+            `OPC_ANDui:   opc2str = "ANDui";
+            `OPC_ORui:    opc2str = "ORui";
+            `OPC_XORui:   opc2str = "XORui";
+            `OPC_SHLui:   opc2str = "SHLui";
+            `OPC_ROLui:   opc2str = "ROLui";
+            `OPC_SHRui:   opc2str = "SHRui";
+            `OPC_RORui:   opc2str = "RORui";
+            `OPC_CMPui:   opc2str = "CMPui";
+// OPCLASS_2
+            `OPC_NEGsr:   opc2str = "ADDsr":
+            `OPC_ADDsr:   opc2str = "SUBsr":
+            `OPC_SUBsr:   opc2str = "NEGsr":
+            `OPC_SHRsr:   opc2str = "SHRsr":
+            `OPC_CMPsr:   opc2str = "CMPsr":
+            `OPC_TSTsr:   opc2str = "TSTsr":
+// OPCLASS_3
+            `OPC_MOVsi:   opc2str = "MOVsi";
+            `OPC_MCCsi:   opc2str = "MCCsi";
+            `OPC_ADDsi:   opc2str = "ADDsi";
+            `OPC_SUBsi:   opc2str = "SUBsi";
+            `OPC_SHRsi:   opc2str = "SHRsi";
+            `OPC_CMPsi:   opc2str = "CMPsi";
+// OPCLASS_4
+            `OPC_LDur:    opc2str = "LDur";
+            `OPC_STur:    opc2str = "STur";
+            `OPC_STui:    opc2str = "STui";
+            `OPC_STsi:    opc2str = "STsi";
+// OPCLASS_5
+            `OPC_LDso:    opc2str = "LDso";
+            `OPC_STso:    opc2str = "STso";
+            `OPC_LDAso:   opc2str = "LDAso";
+            `OPC_STAso:   opc2str = "STAso";
+// OPCLASS_6
+            `OPC_MOVAur:  opc2str = "MOVAur";
+            `OPC_MOVDur:  opc2str = "MOVDur";
+            `OPC_ADDAur:  opc2str = "ADDAur";
+            `OPC_SUBAur:  opc2str = "SUBAur";
+            `OPC_MOVAsr:  opc2str = "MOVAsr";
+            `OPC_ADDAsr:  opc2str = "ADDAsr";
+            `OPC_SUBAsr:  opc2str = "SUBAsr";
+            `OPC_ADDAsi:  opc2str = "ADDAsi";
+            `OPC_SUBAsi:  opc2str = "SUBAsi";
+            `OPC_LEAso:   opc2str = "LEAso";
+            `OPC_ADRAso:  opc2str = "ADRAso";
+            `OPC_CMPAur:  opc2str = "CMPAur";
+            `OPC_TSTAur:  opc2str = "TSTAur";
+// OPCLASS_7
+            `OPC_BTP:     opc2str = "BTP";
+            `OPC_JCCur:   opc2str = "JCCur";
+            `OPC_JCCui:   opc2str = "JCCui";
+            `OPC_BCCsr:   opc2str = "BCCsr";
+            `OPC_BCCso:   opc2str = "BCCso";
+            `OPC_BALso:   opc2str = "BALso";
+            `OPC_JSRur:   opc2str = "JSRur";
+            `OPC_JSRui:   opc2str = "JSRui";
+            `OPC_BSRsr:   opc2str = "BSRsr";
+            `OPC_BSRso:   opc2str = "BSRso";
+            `OPC_RET:     opc2str = "RET";
+// OPCLASS_8
+            `OPC_PUSHur:  opc2str = "PUSHur";
+            `OPC_PUSHAur: opc2str = "PUSHAur";
+            `OPC_POPur:   opc2str = "POPur";
+            `OPC_POPAur:  opc2str = "POPAur";
+// OPCLASS_9
+// OPCLASS_A
+            `OPC_SRHLT:   opc2str = "SRHLT";
+            `OPC_SETSSP:  opc2str = "SETSSP";
+// OPCLASS_B
+// OPCLASS_C
+// OPCLASS_D
+// OPCLASS_E
+// OPCLASS_F
+            `OPC_SRMOVur: opc2str = "SRMOVur";
+            `OPC_SRJCCso: opc2str = "SRJCCso";
+            `OPC_SRADDsi: opc2str = "SRADDsi";
+            `OPC_SRSUBsi: opc2str = "SRSUBsi";
+            `OPC_SRSTso:  opc2str = "SRSTso";
+            `OPC_SRLDso:  opc2str = "SRLDso";
+// DEFAULT
+            default:      opc2str = "UNKNOWN";
         endcase
     end
 endfunction

@@ -3,17 +3,17 @@
 
 `include "src/sizes.vh"
 
-`define CC_RA 4'h0 // branch always
-`define CC_EQ 4'h1 // branch if equal
-`define CC_NE 4'h2 // branch if not equal
-`define CC_LT 4'h3 // branch if less than (signed)
-`define CC_GT 4'h4 // branch if greater than (signed)
-`define CC_LE 4'h5 // branch if less than or equal (signed)
-`define CC_GE 4'h6 // branch if greater than or equal (signed)
-`define CC_BT 4'h7 // branch if below than (unsigned)
-`define CC_AT 4'h8 // branch if above than (unsigned)
-`define CC_BE 4'h9 // branch if below than or equal (unsigned)
-`define CC_AE 4'hA // branch if above than or equal (unsigned)
+`define CC_AL 4'b0000 // branch always
+`define CC_EQ 4'b0001 // branch if equal
+`define CC_NE 4'b0010 // branch if not equal
+`define CC_LT 4'b0011 // branch if less than (signed)
+`define CC_GT 4'b0100 // branch if greater than (signed)
+`define CC_LE 4'b0101 // branch if less than or equal (signed)
+`define CC_GE 4'b0110 // branch if greater than or equal (signed)
+`define CC_BT 4'b0111 // branch if below than (unsigned)
+`define CC_AT 4'b1000 // branch if above than (unsigned)
+`define CC_BE 4'b1001 // branch if below than or equal (unsigned)
+`define CC_AE 4'b1010 // branch if above than or equal (unsigned)
 
 function automatic [79:0] cc2str;
     input [`HBIT_CC:0] cc;
