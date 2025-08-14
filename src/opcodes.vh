@@ -138,13 +138,12 @@
 `define SUBOP_MOVDur 4'b0010 // µop & isa
 `define SUBOP_ADDAur 4'b0011 // µop & isa
 `define SUBOP_SUBAur 4'b0100 // µop & isa
-`define SUBOP_MOVAsr 4'b0101 // µop & isa
-`define SUBOP_ADDAsr 4'b0110 // µop & isa
-`define SUBOP_SUBAsr 4'b0111 // µop & isa
-`define SUBOP_ADDAsi 4'b1000 // µop & isa
-`define SUBOP_SUBAsi 4'b1001 // µop & isa
-`define SUBOP_LEAso  4'b1010 // µop & isa
-`define SUBOP_ADRAso 4'b1011 // µop & isa
+`define SUBOP_ADDAsr 4'b0101 // µop & isa
+`define SUBOP_SUBAsr 4'b0110 // µop & isa
+`define SUBOP_ADDAsi 4'b0111 // µop & isa
+`define SUBOP_SUBAsi 4'b1000 // µop & isa
+`define SUBOP_LEAso  4'b1001 // µop & isa
+`define SUBOP_ADRAso 4'b1010 // µop & isa
 `define SUBOP_CMPAur 4'b1101 // µop & isa
 `define SUBOP_TSTAur 4'b1110 // µop & isa
 
@@ -152,7 +151,6 @@
 `define OPC_MOVDur {`OPCLASS_6, `SUBOP_MOVDur}
 `define OPC_ADDAur {`OPCLASS_6, `SUBOP_ADDAur}
 `define OPC_SUBAur {`OPCLASS_6, `SUBOP_SUBAur}
-`define OPC_MOVAsr {`OPCLASS_6, `SUBOP_MOVAsr}
 `define OPC_ADDAsr {`OPCLASS_6, `SUBOP_ADDAsr}
 `define OPC_SUBAsr {`OPCLASS_6, `SUBOP_SUBAsr}
 `define OPC_ADDAsi {`OPCLASS_6, `SUBOP_ADDAsi}
